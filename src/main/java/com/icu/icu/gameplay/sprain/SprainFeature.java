@@ -7,8 +7,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -76,6 +78,14 @@ public final class SprainFeature {
         if (landedInWater(player)) {
             return;
         }
+        if (player.fireImmune()) {
+            return;
+        }
+        // Slow falling still fires the fall event, it merely cancels the damage,
+        // so the exemption has to be explicit here.
+        if (player.hasEffect(MobEffects.SLOW_FALLING)) {
+            return;
+        }
 
         int chance = baseChance(distance);
         chance = applyProtection(player, chance);
@@ -137,9 +147,12 @@ public final class SprainFeature {
         var lookup = player.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         Holder<Enchantment> featherFalling = lookup.getOrThrow(Enchantments.FEATHER_FALLING);
         Holder<Enchantment> protection = lookup.getOrThrow(Enchantments.PROTECTION);
+
+        // EnchantmentHelper totals the level across every worn piece; the design
+        // says to count from whichever of the two enchantments is higher.
         int level = Math.max(
-                player.getEnchantmentLevel(featherFalling),
-                player.getEnchantmentLevel(protection));
+                EnchantmentHelper.getEnchantmentLevel(featherFalling, player),
+                EnchantmentHelper.getEnchantmentLevel(protection, player));
 
         if (level <= 0) {
             return chance;
