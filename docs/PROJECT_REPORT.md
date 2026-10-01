@@ -128,6 +128,39 @@ ICU/
 | P9 | 客户端启动崩溃 `EXCEPTION_ACCESS_VIOLATION` | Dell A-Volute/Nahimic 音效注入 `NahimicOSD.dll` 注入 OpenGL 进程 | 停 NahimicService（重启自动恢复） |
 | P10 | 反编译报 `页面文件太小` | 物理 15.8GB、页面文件上限 8GB，Vineflower 内存不足 | 未解决（需关程序或加大页面文件） |
 | P11 | **许可证三处自相矛盾** | `gradle.properties` 写 `All Rights Reserved`，而仓库 `LICENSE` 是 Apache-2.0，README 又完全没提许可证 | ✅ 已统一为 Apache-2.0（见 3.3） |
+| P12 | **本机无法编译**（两次尝试均失败） | NeoForm 反编译 Minecraft 需内存超过本机提交上限（可用提交 4.55 GB），报 `Native memory allocation failed / 页面文件太小` | ✅ 改用 GitHub Actions 云端构建（见 2.5） |
+
+### 2.5 首个发布版 0.0.1（P12 的处理结果）
+
+**背景**：本机两次编译都在 NeoForm `decompile` 步骤因内存不足失败，属环境限制而非代码问题。
+
+**方案**：新增 `.github/workflows/release.yml`，把构建搬到 GitHub 的服务器上。
+
+| 项 | 内容 |
+|---|---|
+| 触发条件 | 推送 `v*` 标签 |
+| 版本来源 | 标签自动推导（`v0.0.1` → mod 版本 `0.0.1`） |
+| 构建环境 | ubuntu-latest + JDK 21 (temurin) |
+| 产出 | 附加到 Release 的 `icu-0.0.1.jar` 与 `icu-0.0.1-sources.jar` |
+| 触发结果 | ✅ **构建成功**（约 2 分钟），run #1 `conclusion=success` |
+
+**发布地址**：<https://github.com/STUTTEFRFIX/ICU/releases/tag/v0.0.1>
+
+**产物校验（下载线上 jar 后逐项核对）**：
+
+| 检查项 | 结果 |
+|---|---|
+| `modId` = `icu` | ✅ |
+| `version` = `0.0.1` | ✅ |
+| `license` = `Apache-2.0` | ✅ |
+| 无 `nofo` 残留 | ✅ |
+| 类在 `com/icu/icu/` 下 | ✅ |
+| `gameplay/bleeding/` 三个类齐全 | ✅ |
+| 含 `data/icu/damage_type/bleed.json` | ✅ |
+| 含 `assets/icu/lang/zh_cn.json` | ✅ |
+
+**版本号审计**：`1.0.0` → `0.0.1` 共 12 处（5 个文件）全部更新；
+`minecraft_version=1.21.1`、`neo_version=21.1.252` 属平台版本，**未改动**。
 
 ### 2.4 许可证统一（P11 的处理结果）
 
@@ -154,11 +187,11 @@ ICU/
 | 等级 | 风险 | 说明 | 建议动作 |
 |---|---|---|---|
 | ✅ 已消除 | ~~改名后未编译验证~~ | 项目所有者已实测：**运行没有任何问题**（2026-10-01） | 无需动作 |
-| 🟠 中 | 本机内存不足以反编译 | 页面文件 8GB 上限，`decompile` 步骤会 OOM（本机现象，非代码问题） | 关闭占内存程序 / 加大页面文件 / 在别的机器构建 |
-| 🟠 中 | 已发布 jar 与源码不一致 | 本机残留 jar 是 `nofo` 时代产物 | **不要**直接发布；重新编译后再发 |
+| ✅ 已消除 | ~~许可证修复尚未同步到仓库~~ | 已推送（`8bded6d`） | 无需动作 |
+| ✅ 已消除 | ~~已发布 jar 与源码不一致~~ | `v0.0.1` 的 jar 由 CI 从当前源码构建，已逐项校验一致 | 无需动作 |
+| 🟠 中 | 本机构建受内存限制 | 本机可用提交 4.55 GB，低于反编译需求，`decompile` 必失败（环境限制，非代码问题） | 用 `.github/workflows/release.yml` 云端构建，或换内存充足机器 |
 | 🟡 低 | 文档中保留 10 处 `nofo` | 全是故意的历史说明（对照表、禁用提醒） | 保留，防止改回旧名 |
-| 🟡 低 | 许可证修复尚未同步到仓库 | 仓库当前仍是 `All Rights Reserved`（P11 只改在本地） | 推送后即消除 |
-| 🟡 低 | 沙箱限制构建 | 需完整权限才能编译 | 换正常环境构建 |
+| 🟡 低 | 发布流程依赖 GitHub Actions | 仓库公开，Actions 分钟数免费；若 Actions 被关闭则无法自动发版 | 发版前确认 Actions 为启用状态 |
 | 🟡 低 | 未做游戏内实测（改名后） | 改名前后行为逻辑相同 | 需要时 `runClient` 实测 |
 
 ### 3.2 未完成 / 待决事项
@@ -166,13 +199,13 @@ ICU/
 | # | 事项 | 等待什么 |
 |---|---|---|
 | U1 | ~~重新编译验证~~ | ✅ 已完成（项目所有者实测通过） |
-| U2 | 发布 `icu-0.0.1.jar` 到 GitHub Releases（首个版本） | 进行中 |
-| U3 | 本报表是否同步到仓库 | 用户点头 |
-| U4 | 推广到其它平台（Gitee/Modrinth/CurseForge） | 用户指定平台 |
+| U2 | ~~发布 `icu-0.0.1.jar` 到 GitHub Releases~~ | ✅ 已完成（`v0.0.1`，CI 构建成功） |
+| U3 | ~~本报表是否同步到仓库~~ | ✅ 已同步 |
+| U4 | ~~推广到其它平台~~ | ✅ 项目所有者已完成 |
 | U5 | 是否把本地工程也初始化成 git 仓库 | 用户决定 |
-| U6 | 游戏内实测（真砍一刀验证） | 用户决定 |
-| U7 | **把许可证修复同步到仓库**（`gradle.properties` + `README.md` + `LICENSE` + 报表） | 用户点头 |
-| U8 | 本报表（`docs/PROJECT_REPORT.md`）是否同步到仓库 | 用户点头 |
+| U6 | 游戏内实测（真砍一刀验证） | 项目所有者表示已实测通过 |
+| U7 | ~~把许可证修复同步到仓库~~ | ✅ 已同步（`8bded6d`） |
+| U8 | ~~本报表同步到仓库~~ | ✅ 已同步 |
 
 ---
 

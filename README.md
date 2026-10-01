@@ -53,15 +53,32 @@ src/main/java/com/icu/icu/
 
 ## 怎么构建
 
+**方式一：直接下载（普通玩家用这个）**
+
+到 [Releases](https://github.com/STUTTEFRFIX/ICU/releases) 下载 `icu-0.0.1.jar`，丢进实例的 `mods/` 文件夹即可。
+
+**方式二：自己编译**
+
 ```bat
 build.bat
 ```
 
-产物：`build/libs/icu-0.0.1.jar` → 丢进实例的 `mods/` 文件夹即可。
+产物：`build/libs/icu-0.0.1.jar`。
 
 > 本机有沙箱限制，`build.bat` 已内置所需环境变量（JDK 21 路径等）。
 > 在没有限制的普通机器上，直接 `gradlew.bat build` 即可。
 > 细节与踩坑记录见 [docs/PROJECT_REPORT.md](docs/PROJECT_REPORT.md) 与 [docs/HANDOVER.md](docs/HANDOVER.md)。
+
+**方式三：云端自动构建（发新版用这个）**
+
+推送一个 `v*` 标签，GitHub Actions 会自动编译并把 jar 发布到 Release：
+
+```bash
+git tag v0.0.2
+git push origin v0.0.2
+```
+
+> 标签即版本号：`v0.0.2` → mod 版本 `0.0.2`（workflow 自动写入 `gradle.properties`）。
 
 ---
 

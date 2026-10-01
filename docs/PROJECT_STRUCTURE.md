@@ -22,6 +22,7 @@ icu/
 ├── settings.gradle                  # 仓库地址 + Foojay（自动装 JDK 21）+ 工程名
 ├── build.bat                        # 一键构建脚本（已内置本机所需环境变量）
 ├── gradlew / gradlew.bat            # Gradle wrapper（免装 Gradle）
+├── .github/workflows/release.yml    # ★ 自动构建：推送 v* 标签 → 云端编译并发布 Release
 ├── .gitignore                       # 排除 build/ run/ 等产物
 │
 ├── docs/
