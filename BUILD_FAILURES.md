@@ -9,3 +9,8 @@ The workflow skips appending when the current commit already carries a note for
 the same SHA, which keeps it from looping.
 
 No entries means the last build succeeded.
+
+## build-failure: b0ff36c
+
+Run: https://github.com/STUTTEFRFIX/ICU/actions/runs/36908680933
+
