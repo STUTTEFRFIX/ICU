@@ -13,13 +13,13 @@
 | 目录 | `icu` |
 | mod id | `icu` |
 | Java 包 | `com.icu.icu` |
-| 版本 | 1.0.0 |
+| 版本 | 0.0.1 |
 | 平台 | Minecraft **1.21.1** + NeoForge **21.1.252** |
 | 构建 | ModDevGradle **1.0.24**，Gradle 8.14.3，Java 21 |
 | 当前功能 | **只有 1 个模块：大出血（`gameplay.bleeding`）** |
 
 > **命名只有一套**：仓库 `ICU` = 目录 `icu` = mod id `icu` = 包 `com.icu.icu`。
-> 历史上曾用过 `nofo`，已于 1.0.0 结构重排中**彻底移除**（源码、资源、文档、jar 全部不再出现）。
+> 历史上曾用过 `nofo`，已在结构重排中**彻底移除**（源码、资源、文档、jar 全部不再出现）。
 
 **设计定位**：不做「魔法/技能」，做「写实创伤」。规则偏残酷——中招基本等于宣判死亡。
 
@@ -88,7 +88,7 @@ cd /d D:\DS\icu
 build.bat
 ```
 
-**产物**：`build/libs/icu-1.0.0.jar` → 丢进实例的 `mods/` 文件夹即可使用。
+**产物**：`build/libs/icu-0.0.1.jar` → 丢进实例的 `mods/` 文件夹即可使用。
 
 **前置条件**：出网；Java 21（`settings.gradle` 的 Foojay 插件会自动下载）。
 

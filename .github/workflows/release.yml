@@ -1,0 +1,70 @@
+# Builds the ICU mod and attaches the jar to a GitHub Release.
+#
+# Trigger: pushing a version tag such as v0.0.1
+#     git tag v0.0.1
+#     git push origin v0.0.1
+#
+# The tag drives the mod version: "v0.0.1" builds version 0.0.1.
+# This runs on GitHub's machines, so it does not depend on the memory
+# available on any contributor's PC.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Derive mod version from the tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "Building version $VERSION"
+          sed -i "s/^mod_version=.*/mod_version=$VERSION/" gradle.properties
+          grep '^mod_version=' gradle.properties
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew build --no-daemon --stacktrace
+
+      - name: Collect artifacts
+        run: |
+          echo "--- build/libs ---"
+          ls -l build/libs
+          mkdir -p dist
+          cp build/libs/*.jar dist/
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: icu-jars
+          path: dist/*.jar
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.jar
+          generate_release_notes: true
+          fail_on_unmatched_files: true

@@ -7,7 +7,7 @@
 | 平台 | Minecraft **1.21.1** + NeoForge **21.1.252** |
 | 构建 | ModDevGradle 1.0.24 · Gradle 8.14.3 · Java 21 |
 | mod id | `icu` |
-| 当前版本 | 1.0.0 |
+| 当前版本 | 0.0.1（首个发布版） |
 | 许可证 | **Apache-2.0**（允许修改与再分发） |
 | 已实现模块 | **1 个**：大出血（`gameplay.bleeding`） |
 
@@ -57,7 +57,7 @@ src/main/java/com/icu/icu/
 build.bat
 ```
 
-产物：`build/libs/icu-1.0.0.jar` → 丢进实例的 `mods/` 文件夹即可。
+产物：`build/libs/icu-0.0.1.jar` → 丢进实例的 `mods/` 文件夹即可。
 
 > 本机有沙箱限制，`build.bat` 已内置所需环境变量（JDK 21 路径等）。
 > 在没有限制的普通机器上，直接 `gradlew.bat build` 即可。

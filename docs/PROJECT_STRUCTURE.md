@@ -8,7 +8,7 @@
 ## 1. 一句话简介
 
 `ICU` 是一个 **Minecraft 1.21.1 / NeoForge** 模组，主题是「还原真实的身体损伤与医疗体系」。
-当前版本 1.0.0 **只实现了一个玩法模块：大出血（bleeding）**。
+当前版本 0.0.1 **只实现了一个玩法模块：大出血（bleeding）**。
 
 ---
 
@@ -152,7 +152,7 @@ PlayerRespawnEvent → 层数清零 + 移除效果
 
 | 产物 | 路径 |
 |---|---|
-| 模组 jar | `build/libs/icu-1.0.0.jar` |
-| 源码 jar | `build/libs/icu-1.0.0-sources.jar` |
+| 模组 jar | `build/libs/icu-0.0.1.jar` |
+| 源码 jar | `build/libs/icu-0.0.1-sources.jar` |
 
-安装方式：把 `icu-1.0.0.jar` 放进对应实例的 `mods/` 文件夹。
+安装方式：把 `icu-0.0.1.jar` 放进对应实例的 `mods/` 文件夹。

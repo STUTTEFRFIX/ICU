@@ -18,7 +18,7 @@
 | 本地目录 | `D:\DS\icu` |
 | mod id | `icu` |
 | Java 包 | `com.icu.icu` |
-| 版本 | 1.0.0 |
+| 版本 | 0.0.1（首个发布版） |
 | 平台 | Minecraft **1.21.1** + NeoForge **21.1.252** |
 | 构建 | ModDevGradle 1.0.24 · Gradle 8.14.3 · Java 21 |
 | 已实现模块 | **1 个** — `gameplay.bleeding`（大出血） |
@@ -166,7 +166,7 @@ ICU/
 | # | 事项 | 等待什么 |
 |---|---|---|
 | U1 | ~~重新编译验证~~ | ✅ 已完成（项目所有者实测通过） |
-| U2 | 发布 `icu-1.0.0.jar` 到 GitHub Releases | 用户决定是否发布 |
+| U2 | 发布 `icu-0.0.1.jar` 到 GitHub Releases（首个版本） | 进行中 |
 | U3 | 本报表是否同步到仓库 | 用户点头 |
 | U4 | 推广到其它平台（Gitee/Modrinth/CurseForge） | 用户指定平台 |
 | U5 | 是否把本地工程也初始化成 git 仓库 | 用户决定 |
