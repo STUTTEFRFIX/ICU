@@ -1,5 +1,12 @@
 {
-  "effect.icu.bleeding": "Massive Bleeding",
-  "death.attack.bleed": "%1$s bled to death",
-  "death.attack.bleed.player": "%1$s bled to death while fighting %2$s"
+  "death.attack.bleed": "%1$s bled out",
+  "death.attack.bleed.player": "%1$s was drained of blood by %2$s",
+
+  "message.icu.pain_max": "It hurts so much",
+  "message.icu.sprained": "I twisted my ankle",
+  "message.icu.wound_reopened": "The wound tore open again!",
+
+  "item.icu.bandage": "Bandage",
+
+  "effect.icu.bleeding": "Massive Bleeding"
 }

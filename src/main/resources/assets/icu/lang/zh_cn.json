@@ -1,5 +1,12 @@
 {
-  "effect.icu.bleeding": "大出血",
-  "death.attack.bleed": "%1$s 因大出血而死亡",
-  "death.attack.bleed.player": "%1$s 被 %2$s 砍成重伤，大出血而亡"
+  "death.attack.bleed": "%1$s 血容量归零，失血过多而亡",
+  "death.attack.bleed.player": "%1$s 的血被 %2$s 放干了",
+
+  "message.icu.pain_max": "我好疼 我好疼",
+  "message.icu.sprained": "完了 我崴到脚了",
+  "message.icu.wound_reopened": "伤口又裂开了！",
+
+  "item.icu.bandage": "绷带",
+
+  "effect.icu.bleeding": "大出血"
 }

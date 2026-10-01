@@ -44,6 +44,7 @@ src/main/java/com/icu/icu/
 | 文档 | 什么时候看 |
 |---|---|
 | **本文件** | 第一次接触项目 |
+| [docs/CHANGELOG.md](docs/CHANGELOG.md) | 想知道「实现了什么功能、改了什么」 |
 | [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) | 想知道每个文件具体干什么 |
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | 要加新功能、改代码之前 |
 | [docs/PROJECT_REPORT.md](docs/PROJECT_REPORT.md) | 项目管理、问题分析、接手总览 |

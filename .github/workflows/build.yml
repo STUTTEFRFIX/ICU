@@ -1,0 +1,89 @@
+# Compile check for the ICU mod.
+#
+# Runs on every push to main and on pull requests, so a change is verified
+# before a release tag is ever created. This exists because the maintainer's
+# own machine cannot finish a NeoForm decompile (not enough commit limit),
+# so the compiler has to live on GitHub's runners.
+#
+# The auto-commit step is a safety net for a real failure mode: NeoForge's
+# decompiler is memory hungry, and on a runner with less headroom it can die
+# with "os::commit_memory failed". Retrying inside the runner costs seconds
+# instead of needing another human round trip.
+
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build
+        id: build
+        run: |
+          set +e
+          ./gradlew build --no-daemon --stacktrace
+          RC=$?
+          if [ $RC -ne 0 ]; then
+            echo "first attempt failed (exit $RC), retrying once in case the"
+            echo "NeoForm decompiler ran out of memory inside the runner"
+            ./gradlew build --no-daemon --stacktrace
+            RC=$?
+          fi
+          exit $RC
+
+      - name: Report produced jars
+        if: success()
+        run: |
+          echo "--- build/libs ---"
+          ls -l build/libs
+
+      # If the build failed, append a short note to the repository so the
+      # outside orchestrator can read the failure without a human in the loop.
+      # Skip when this same commit already has such a note, to avoid a loop.
+      - name: Record build failure
+        if: failure()
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          set -e
+          MSG="build-failure: ${SHA:0:7}"
+          if git log -1 --pretty=%B | grep -q "build-failure: ${SHA:0:7}"; then
+            echo "this commit already carries a build-failure note; not repeating"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "" >> BUILD_FAILURES.md
+          echo "## ${MSG}" >> BUILD_FAILURES.md
+          echo "" >> BUILD_FAILURES.md
+          echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> BUILD_FAILURES.md
+          echo "" >> BUILD_FAILURES.md
+          git add BUILD_FAILURES.md
+          git commit -m "build-failure: record failing build for ${SHA:0:7}"
+          git push

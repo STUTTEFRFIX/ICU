@@ -2,6 +2,7 @@ package com.icu.icu.gameplay.bleeding;
 
 import com.icu.icu.IcuAttachments;
 import com.icu.icu.IcuMod;
+import com.icu.icu.gameplay.blood.BloodVolumeData;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
@@ -21,24 +22,29 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 /**
  * Bleeding module - massive bleeding (haemorrhage).
  *
- * <p>This is the complete gameplay of the module. All rule constants are public
- * and sit at the top so the numbers can be tuned without reading the logic.</p>
+ * <p>All rule constants are public and sit at the top, so the numbers can be
+ * tuned without reading the logic.</p>
  *
  * <h2>Rules</h2>
  * <ol>
- *   <li><b>Trigger</b> - a player is hit by a sword- or axe-class weapon and the
- *       final damage after armour/enchantment mitigation is greater than
- *       {@link #TRIGGER_DAMAGE}. The threshold is low because armour makes
- *       larger numbers unreachable; see the constant for the calibration.</li>
- *   <li><b>Stacking</b> - every qualifying hit adds one layer, uncapped.</li>
- *   <li><b>Blood loss</b> - once per second, each layer deals
- *       {@link #DAMAGE_PER_LAYER} points.</li>
- *   <li><b>No time limit</b> - only death and respawn end the effect.</li>
- *   <li><b>Forced prone</b> - swimming pose, self-propelled movement locked,
- *       jumping cancelled, knockback suppressed.</li>
- *   <li><b>Status effects</b> - Nausea and Darkness, refreshed continuously and
- *       removed together with the bleeding.</li>
+ *   <li><b>Trigger</b> - hit by a sword- or axe-class weapon and the final damage
+ *       after armour and enchantments is greater than {@link #TRIGGER_DAMAGE}.</li>
+ *   <li><b>Stacking</b> - every qualifying hit adds one layer, uncapped. Layers
+ *       are recorded for diagnostics and for the recovery rules.</li>
+ *   <li><b>Blood loss</b> - while bleeding, blood volume drops
+ *       {@link BloodVolumeData#LOSS_PER_SECOND} points every second. At zero the
+ *       player dies immediately, whatever their health was. This is the
+ *       <b>only</b> way a haemorrhage kills - there is deliberately no extra
+ *       health damage, so blood volume is the single source of truth.</li>
+ *   <li><b>Forced prone</b> - swimming pose, no self-propelled movement, no
+ *       jumping, no knockback.</li>
+ *   <li><b>Status effects</b> - Nausea and Darkness, refreshed continuously.</li>
+ *   <li><b>Treatment</b> - a bandage held for 3 seconds stops the bleed and opens
+ *       the recovery window. Blood volume is never refilled.</li>
  * </ol>
+ *
+ * <p>The heart-beat sound is not implemented yet; the design is fixed and awaits
+ * audio assets.</p>
  */
 @EventBusSubscriber(modid = IcuMod.MODID)
 public final class BleedingFeature {
@@ -48,25 +54,8 @@ public final class BleedingFeature {
     // Tunable rules
     // ------------------------------------------------------------------
 
-    /**
-     * Final (post-mitigation) damage that must be exceeded to open a wound.
-     *
-     * <p>Calibrated against the 1.21.1 armour formula. Reaching higher numbers is
-     * mathematically impossible once armour is worn, so the threshold is
-     * deliberately low:</p>
-     * <ul>
-     *   <li>no armour - almost any sword or axe hit opens a wound</li>
-     *   <li>leather - needs a heavy hit</li>
-     *   <li>chainmail / iron - needs a sword or axe hit of iron tier or better</li>
-     *   <li>diamond / netherite - practically protected (the raw damage a player
-     *       can reach, about 19.5 on a critical hit with a Sharpness V netherite
-     *       axe, cannot push 3 points through full diamond armour)</li>
-     * </ul>
-     */
-    public static final float TRIGGER_DAMAGE = 3.0F;
-
-    /** Health lost per layer, applied once per second. */
-    public static final float DAMAGE_PER_LAYER = 2.0F;
+    /** Final (post-mitigation) damage that must be exceeded to open a wound. */
+    public static final float TRIGGER_DAMAGE = 7.0F;
 
     /** Refresh window for the two status effects, in ticks. */
     private static final int EFFECT_REFRESH_TICKS = 20;
@@ -119,19 +108,43 @@ public final class BleedingFeature {
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
-        BleedingData data = player.getData(IcuAttachments.BLEEDING);
-        if (!data.isBleeding() || player.level().isClientSide()) {
+        if (player.level().isClientSide()) {
+            return;
+        }
+
+        BloodVolumeData blood = player.getData(IcuAttachments.BLOOD_VOLUME);
+
+        if (!player.getData(IcuAttachments.BLEEDING).isBleeding()) {
+            // Out of danger: the body slowly makes new blood.
+            blood.tickRegen();
             return;
         }
 
         applyProneLock(player);
+        applyStatusEffects(player);
 
-        if (player.tickCount % TICK_INTERVAL == 0) {
-            player.hurt(BleedingDamage.source(player), DAMAGE_PER_LAYER * data.getLayers());
-            emitBloodParticles(player, data.getLayers());
+        if (player.tickCount % TICK_INTERVAL != 0) {
+            return;
         }
 
-        applyStatusEffects(player);
+        emitBloodParticles(player, player.getData(IcuAttachments.BLEEDING).getLayers());
+
+        // The one and only lethal mechanism.
+        if (blood.drain(BloodVolumeData.LOSS_PER_SECOND) && player.isAlive()) {
+            killFromBloodLoss(player);
+        }
+    }
+
+    /**
+     * Blood volume reached zero. The player dies immediately, regardless of how
+     * much health was left.
+     */
+    private static void killFromBloodLoss(Player player) {
+        // TODO: play the flat-line sound ("滴——") here once the audio asset exists.
+        player.hurt(BleedingDamage.source(player), Float.MAX_VALUE);
+        if (player.isAlive()) {
+            player.setHealth(0.0F);
+        }
     }
 
     /**
@@ -142,8 +155,6 @@ public final class BleedingFeature {
     private static void applyProneLock(Player player) {
         player.setPose(Pose.SWIMMING);
 
-        // Keep gravity (so the player still falls) but remove all input-driven
-        // horizontal motion, and cancel any upward impulse such as a jump.
         double vertical = player.getDeltaMovement().y;
         player.setDeltaMovement(0.0D, vertical > 0.0D ? 0.0D : vertical, 0.0D);
         player.hurtMarked = true;
@@ -179,6 +190,10 @@ public final class BleedingFeature {
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         Player player = event.getEntity();
         player.getData(IcuAttachments.BLEEDING).clear();
+        player.getData(IcuAttachments.BLEEDING_RECOVERY).stop();
+        player.getData(IcuAttachments.BLOOD_VOLUME).reset();
+        player.getData(IcuAttachments.PAIN).reset();
+        player.getData(IcuAttachments.SPRAIN).clear();
         player.removeEffect(MobEffects.CONFUSION);
         player.removeEffect(MobEffects.DARKNESS);
     }
