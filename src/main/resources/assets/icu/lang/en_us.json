@@ -1,5 +1,5 @@
 {
-  "effect.nofo.bleeding": "Massive Bleeding",
+  "effect.icu.bleeding": "Massive Bleeding",
   "death.attack.bleed": "%1$s bled to death",
   "death.attack.bleed.player": "%1$s bled to death while fighting %2$s"
 }

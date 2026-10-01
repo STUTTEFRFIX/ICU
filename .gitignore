@@ -20,3 +20,4 @@ runs/
 
 # --- Misc ---
 *.log
+build-log.txt

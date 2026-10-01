@@ -1,10 +1,81 @@
-这个是我的个人练手项目
-允许所有人二次更改开发附属
-是拿 DeepSeek agent 写的
-有任何问题可以反馈
+# ICU
 
-目前为早期阶段
-如果有问题的话 可以来631208366qq群反馈
+**在 Minecraft 中还原真实的身体损伤与医疗体系。**
 
-需要Java 21
-版本为1.21.1nofo
+| | |
+|---|---|
+| 平台 | Minecraft **1.21.1** + NeoForge **21.1.252** |
+| 构建 | ModDevGradle 1.0.24 · Gradle 8.14.3 · Java 21 |
+| mod id | `icu` |
+| 当前版本 | 1.0.0 |
+| 已实现模块 | **1 个**：大出血（`gameplay.bleeding`） |
+
+---
+
+## 这是什么
+
+ICU 把「受伤」和「救治」做成一套写实的机制。玩法以**独立模块**形式添加，一个功能一个包，互不干扰。
+
+本版本只包含第一个模块：**大出血（Haemorrhage）**——被刀斧类武器重创后会持续失血，直到死亡。
+
+---
+
+## 30 秒看懂代码
+
+```
+src/main/java/com/icu/icu/
+├── IcuMod.java                  ← 起点：模组入口，只做注册
+├── IcuAttachments.java          ← 数据存储：玩家身上的伤口状态挂在这里
+└── gameplay/                    ← ★ 所有玩法的家，一个功能一个子包
+    └── bleeding/                ← 大出血模块
+        ├── BleedingData.java       数据：出血层数
+        ├── BleedingDamage.java     伤害：自定义伤害类型 icu:bleed
+        └── BleedingFeature.java    规则：触发、扣血、强制趴下、效果（★核心）
+```
+
+**想改玩法 → 只动 `gameplay/bleeding/`。**
+**想加新玩法 → 在 `gameplay/` 下新建一个包（如 `fracture/`）。** 详见 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)。
+
+---
+
+## 文档地图
+
+| 文档 | 什么时候看 |
+|---|---|
+| **本文件** | 第一次接触项目 |
+| [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) | 想知道每个文件具体干什么 |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | 要加新功能、改代码之前 |
+| [docs/BUILD_AND_TEST.md](docs/BUILD_AND_TEST.md) | 要构建、要实测、遇到环境报错 |
+| [docs/HANDOVER.md](docs/HANDOVER.md) | 接手项目，想快速了解全貌与当前状态 |
+
+---
+
+## 怎么构建
+
+```bat
+build.bat
+```
+
+产物：`build/libs/icu-1.0.0.jar` → 丢进实例的 `mods/` 文件夹即可。
+
+> 本机有沙箱限制，`build.bat` 已内置所需环境变量（JDK 21 路径等）。
+> 在没有限制的普通机器上，直接 `gradlew.bat build` 即可。
+> 细节与踩坑记录见 [docs/BUILD_AND_TEST.md](docs/BUILD_AND_TEST.md)。
+
+---
+
+## 当前功能一览
+
+**大出血**：被剑/斧类武器命中、且**护甲结算后**的最终伤害 > 10 点（5 心）时触发。
+
+| 行为 | 数值 |
+|---|---|
+| 出血层数 | 每命中一次 +1，**无上限** |
+| 失血速度 | 每层 **2 点/秒**（1 心/秒） |
+| 持续时间 | **无时限**，只有死亡重生能结束 |
+| 强制趴下 | 游泳姿态 + 锁移动 + 禁跳 + 锁击退 |
+| 附加效果 | 反胃 + 黑暗（持续刷新） |
+| 表现 | 血粒子、中文死亡消息 |
+
+> 因为「无时限 + 无治疗手段」，**第一层就已是致命伤**，叠加只决定死亡快慢。
+> 这是设计选择，不是缺陷。参数都能在 `BleedingFeature` 顶部改。

@@ -1,7 +1,7 @@
-package com.nofo.nofo.bleed;
+package com.icu.icu.gameplay.bleeding;
 
-import com.nofo.nofo.ModAttachments;
-import com.nofo.nofo.ModAttachments.BleedingData;
+import com.icu.icu.IcuAttachments;
+import com.icu.icu.IcuMod;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
@@ -12,7 +12,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -20,34 +19,45 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /**
- * Massive bleeding (haemorrhage) - the single feature of this ICU build.
+ * Bleeding module - massive bleeding (haemorrhage).
  *
- * <h2>Rules implemented</h2>
+ * <p>This is the complete gameplay of the module. All rule constants are public
+ * and sit at the top so the numbers can be tuned without reading the logic.</p>
+ *
+ * <h2>Rules</h2>
  * <ol>
- *   <li>Trigger: a player is hit by a sword/axe-class weapon, and the
- *       <b>final</b> damage after armour/enchantment mitigation is
- *       {@code > 10} points (more than 5 hearts).</li>
- *   <li>Each qualifying hit adds one bleeding layer, uncapped.</li>
- *   <li>Every second, each layer deals 2 points (1 heart) of bleed damage.</li>
- *   <li>There is no time limit: only death and respawn clear the effect.</li>
- *   <li>While bleeding the player is forced prone: swimming pose, no
- *       self-propelled movement, no jumping and no knockback.</li>
- *   <li>Nausea and Darkness are applied continuously and cleared together with
- *       the bleeding.</li>
+ *   <li><b>Trigger</b> - a player is hit by a sword- or axe-class weapon and the
+ *       final damage after armour/enchantment mitigation is greater than
+ *       {@link #TRIGGER_DAMAGE} (10 points = 5 hearts).</li>
+ *   <li><b>Stacking</b> - every qualifying hit adds one layer, uncapped.</li>
+ *   <li><b>Blood loss</b> - once per second, each layer deals
+ *       {@link #DAMAGE_PER_LAYER} points.</li>
+ *   <li><b>No time limit</b> - only death and respawn end the effect.</li>
+ *   <li><b>Forced prone</b> - swimming pose, self-propelled movement locked,
+ *       jumping cancelled, knockback suppressed.</li>
+ *   <li><b>Status effects</b> - Nausea and Darkness, refreshed continuously and
+ *       removed together with the bleeding.</li>
  * </ol>
  */
-@EventBusSubscriber(modid = com.nofo.nofo.NofoMod.MODID)
-public final class BleedHandler {
-    private BleedHandler() {}
+@EventBusSubscriber(modid = IcuMod.MODID)
+public final class BleedingFeature {
+    private BleedingFeature() {}
 
-    /** Final damage (post-mitigation) that must be exceeded to open a wound. */
-    public static final float BLEED_TRIGGER_DAMAGE = 10.0F;
+    // ------------------------------------------------------------------
+    // Tunable rules
+    // ------------------------------------------------------------------
 
-    /** Damage per layer, applied once per second. */
+    /** Final (post-mitigation) damage that must be exceeded to open a wound. */
+    public static final float TRIGGER_DAMAGE = 10.0F;
+
+    /** Health lost per layer, applied once per second. */
     public static final float DAMAGE_PER_LAYER = 2.0F;
 
-    /** Refresh window for the two status effects (ticks). */
+    /** Refresh window for the two status effects, in ticks. */
     private static final int EFFECT_REFRESH_TICKS = 20;
+
+    /** Blood loss and particles run once every this many ticks. */
+    private static final int TICK_INTERVAL = 20;
 
     // ------------------------------------------------------------------
     // Trigger
@@ -55,8 +65,7 @@ public final class BleedHandler {
 
     /**
      * {@code LivingDamageEvent.Post} fires after armour, enchantments and
-     * resistance have been applied, which is exactly the "real" damage the
-     * player received.
+     * resistance have been applied - exactly the damage the player really took.
      */
     @SubscribeEvent
     public static void onLivingDamagePost(LivingDamageEvent.Post event) {
@@ -66,16 +75,17 @@ public final class BleedHandler {
         if (player.level().isClientSide() || !player.isAlive() || player.isCreative() || player.isSpectator()) {
             return;
         }
-        if (event.getNewDamage() <= BLEED_TRIGGER_DAMAGE) {
+        if (event.getNewDamage() <= TRIGGER_DAMAGE) {
             return;
         }
         if (!isBladedWeaponAttack(event.getSource())) {
             return;
         }
 
-        player.getData(ModAttachments.BLEEDING).addLayer();
+        player.getData(IcuAttachments.BLEEDING).addLayer();
     }
 
+    /** Sword-class or axe-class weapons, resolved through the vanilla item tags. */
     private static boolean isBladedWeaponAttack(DamageSource source) {
         if (!(source.getEntity() instanceof LivingEntity attacker)) {
             return false;
@@ -84,7 +94,6 @@ public final class BleedHandler {
         if (weapon.isEmpty()) {
             return false;
         }
-        // "刀斧类" == sword-class or axe-class weapons.
         return weapon.is(ItemTags.SWORDS) || weapon.is(ItemTags.AXES);
     }
 
@@ -95,18 +104,15 @@ public final class BleedHandler {
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
-        BleedingData data = player.getData(ModAttachments.BLEEDING);
-        if (!data.isBleeding()) {
-            return;
-        }
-        if (player.level().isClientSide()) {
+        BleedingData data = player.getData(IcuAttachments.BLEEDING);
+        if (!data.isBleeding() || player.level().isClientSide()) {
             return;
         }
 
         applyProneLock(player);
 
-        if (player.tickCount % 20 == 0) {
-            player.hurt(BleedDamage.source(player), DAMAGE_PER_LAYER * data.getLayers());
+        if (player.tickCount % TICK_INTERVAL == 0) {
+            player.hurt(BleedingDamage.source(player), DAMAGE_PER_LAYER * data.getLayers());
             emitBloodParticles(player, data.getLayers());
         }
 
@@ -114,18 +120,17 @@ public final class BleedHandler {
     }
 
     /**
-     * Forced prone: the swimming pose makes the player visually crawl on the
-     * ground, speed is zeroed so no self-propelled movement is possible, the
-     * jump impulse is cancelled, and knockback is suppressed as requested.
+     * Forced prone. The swimming pose makes the player visually crawl, speed is
+     * zeroed so no self-propelled movement is possible, the jump impulse is
+     * cancelled and knockback is suppressed.
      */
     private static void applyProneLock(Player player) {
         player.setPose(Pose.SWIMMING);
 
-        if (player.getDeltaMovement().y > 0.0D) {
-            player.setDeltaMovement(0.0D, 0.0D, 0.0D);
-        } else {
-            player.setDeltaMovement(0.0D, player.getDeltaMovement().y, 0.0D);
-        }
+        // Keep gravity (so the player still falls) but remove all input-driven
+        // horizontal motion, and cancel any upward impulse such as a jump.
+        double vertical = player.getDeltaMovement().y;
+        player.setDeltaMovement(0.0D, vertical > 0.0D ? 0.0D : vertical, 0.0D);
         player.hurtMarked = true;
         player.push(0.0D, 0.0D, 0.0D);
     }
@@ -158,7 +163,7 @@ public final class BleedHandler {
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         Player player = event.getEntity();
-        player.getData(ModAttachments.BLEEDING).clear();
+        player.getData(IcuAttachments.BLEEDING).clear();
         player.removeEffect(MobEffects.CONFUSION);
         player.removeEffect(MobEffects.DARKNESS);
     }
