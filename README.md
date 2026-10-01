@@ -8,6 +8,7 @@
 | 构建 | ModDevGradle 1.0.24 · Gradle 8.14.3 · Java 21 |
 | mod id | `icu` |
 | 当前版本 | 1.0.0 |
+| 许可证 | **Apache-2.0**（允许修改与再分发） |
 | 已实现模块 | **1 个**：大出血（`gameplay.bleeding`） |
 
 ---
@@ -45,7 +46,7 @@ src/main/java/com/icu/icu/
 | **本文件** | 第一次接触项目 |
 | [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) | 想知道每个文件具体干什么 |
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | 要加新功能、改代码之前 |
-| [docs/BUILD_AND_TEST.md](docs/BUILD_AND_TEST.md) | 要构建、要实测、遇到环境报错 |
+| [docs/PROJECT_REPORT.md](docs/PROJECT_REPORT.md) | 项目管理、问题分析、接手总览 |
 | [docs/HANDOVER.md](docs/HANDOVER.md) | 接手项目，想快速了解全貌与当前状态 |
 
 ---
@@ -60,7 +61,7 @@ build.bat
 
 > 本机有沙箱限制，`build.bat` 已内置所需环境变量（JDK 21 路径等）。
 > 在没有限制的普通机器上，直接 `gradlew.bat build` 即可。
-> 细节与踩坑记录见 [docs/BUILD_AND_TEST.md](docs/BUILD_AND_TEST.md)。
+> 细节与踩坑记录见 [docs/PROJECT_REPORT.md](docs/PROJECT_REPORT.md) 与 [docs/HANDOVER.md](docs/HANDOVER.md)。
 
 ---
 
@@ -79,3 +80,19 @@ build.bat
 
 > 因为「无时限 + 无治疗手段」，**第一层就已是致命伤**，叠加只决定死亡快慢。
 > 这是设计选择，不是缺陷。参数都能在 `BleedingFeature` 顶部改。
+
+---
+
+## 许可证
+
+本项目采用 **Apache License 2.0**。三处声明完全一致：
+
+| 位置 | 内容 |
+|---|---|
+| [`LICENSE`](LICENSE) | Apache License 2.0 全文 |
+| [`gradle.properties`](gradle.properties) | `mod_license=Apache-2.0`（会写入模组元数据，游戏内模组列表可见） |
+| 本文件 | 你正在看的这一节 |
+
+**你可以**：自由使用、修改、分发本项目，包括商业用途与二次开发。
+**条件**：保留版权与许可证声明，并标明你做出的修改（见 LICENSE 第 4 条）。
+**不提供担保**：见 LICENSE 第 7 条。
