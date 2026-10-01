@@ -53,7 +53,7 @@ gameplay/<模块>/
 
 ```java
 // 好：想调数值的人一眼就看到
-public static final float TRIGGER_DAMAGE = 10.0F;
+public static final float TRIGGER_DAMAGE = 3.0F;
 public static final float DAMAGE_PER_LAYER = 2.0F;
 
 // 差：数字散落在逻辑中间

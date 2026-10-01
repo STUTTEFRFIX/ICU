@@ -28,7 +28,8 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * <ol>
  *   <li><b>Trigger</b> - a player is hit by a sword- or axe-class weapon and the
  *       final damage after armour/enchantment mitigation is greater than
- *       {@link #TRIGGER_DAMAGE} (10 points = 5 hearts).</li>
+ *       {@link #TRIGGER_DAMAGE}. The threshold is low because armour makes
+ *       larger numbers unreachable; see the constant for the calibration.</li>
  *   <li><b>Stacking</b> - every qualifying hit adds one layer, uncapped.</li>
  *   <li><b>Blood loss</b> - once per second, each layer deals
  *       {@link #DAMAGE_PER_LAYER} points.</li>
@@ -47,8 +48,22 @@ public final class BleedingFeature {
     // Tunable rules
     // ------------------------------------------------------------------
 
-    /** Final (post-mitigation) damage that must be exceeded to open a wound. */
-    public static final float TRIGGER_DAMAGE = 10.0F;
+    /**
+     * Final (post-mitigation) damage that must be exceeded to open a wound.
+     *
+     * <p>Calibrated against the 1.21.1 armour formula. Reaching higher numbers is
+     * mathematically impossible once armour is worn, so the threshold is
+     * deliberately low:</p>
+     * <ul>
+     *   <li>no armour - almost any sword or axe hit opens a wound</li>
+     *   <li>leather - needs a heavy hit</li>
+     *   <li>chainmail / iron - needs a sword or axe hit of iron tier or better</li>
+     *   <li>diamond / netherite - practically protected (the raw damage a player
+     *       can reach, about 19.5 on a critical hit with a Sharpness V netherite
+     *       axe, cannot push 3 points through full diamond armour)</li>
+     * </ul>
+     */
+    public static final float TRIGGER_DAMAGE = 3.0F;
 
     /** Health lost per layer, applied once per second. */
     public static final float DAMAGE_PER_LAYER = 2.0F;

@@ -86,7 +86,7 @@ icu/
 
 | 方法 | 作用 |
 |---|---|
-| `onLivingDamagePost(LivingDamageEvent.Post)` | **触发判定**：是玩家 + 非创造/旁观 + 最终伤害 > 10 + 攻击者手持剑/斧 → 层数 +1 |
+| `onLivingDamagePost(LivingDamageEvent.Post)` | **触发判定**：是玩家 + 非创造/旁观 + 最终伤害 > 3 + 攻击者手持剑/斧 → 层数 +1 |
 | `onPlayerTick(PlayerTickEvent.Post)` | 每 tick 维持：强制趴下、每秒扣血、每秒血粒子、刷新反胃+黑暗 |
 | `applyProneLock(Player)` | `setPose(SWIMMING)` + 清零水平速度 + 取消向上速度（禁跳）+ `push(0,0,0)`（锁击退） |
 | `applyStatusEffects(Player)` | 每 tick 刷新 `CONFUSION` 与 `DARKNESS`（各 20 tick） |
@@ -102,7 +102,7 @@ icu/
         │
         ▼
 LivingDamageEvent.Post   ← 护甲/附魔/抗性已全部结算
-        │  最终伤害 > 10 ？
+        │  最终伤害 > 3 ？
         ▼
 AttachmentType BLEEDING 层数 +1（无上限）
         │
@@ -126,7 +126,7 @@ PlayerRespawnEvent → 层数清零 + 移除效果
 
 | 想改的东西 | 改哪个文件 | 具体位置 |
 |---|---|---|
-| 触发伤害阈值（现在 >10） | `BleedingFeature.java` | `TRIGGER_DAMAGE` |
+| 触发伤害阈值（现在 >3） | `BleedingFeature.java` | `TRIGGER_DAMAGE` |
 | 每层每秒扣血（现在 2 点） | `BleedingFeature.java` | `DAMAGE_PER_LAYER` |
 | 效果刷新间隔（现在 20 tick） | `BleedingFeature.java` | `EFFECT_REFRESH_TICKS` |
 | 扣血/粒子间隔（现在 20 tick） | `BleedingFeature.java` | `TICK_INTERVAL` |
