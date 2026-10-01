@@ -222,6 +222,31 @@ ICU/
 > 源码包仍会作为 **workflow artifact** 保留（供开发者下载），
 > 只是不再出现在玩家的下载列表里。
 
+### 2.8 源码压缩包（C 方案）
+
+**需求**：希望源码在 Release 页面上可直接下载。
+
+**问题**：直接恢复 `-sources.jar` 会重演 P14（jar 格式 + 含 `neoforge.mods.toml`，
+玩家可能又把它装进 `mods/`）。
+
+**方案**：改用 **`.zip` 扩展名的源码压缩包** `icu-<版本>-src.zip`，三重保险：
+
+| 保险 | 说明 |
+|---|---|
+| 扩展名是 `.zip` | 无法丢进 `mods/` 让加载器读取 |
+| 名字带 `-src` | 一眼看出是源码 |
+| 模组本体带 `-Mod` | 两者不会混淆 |
+
+**实现**：workflow 新增 `Pack the source archive` 步骤，
+打包 `src/ docs/ .github/ gradle/` 与全部构建脚本；Release 同时挂
+`dist/*.jar` 与 `dist/*-src.zip`。
+
+**已补到 v0.0.3**：`icu-0.0.3-src.zip`（84,012 字节，28 个文件），
+已上传到 <https://github.com/STUTTEFRFIX/ICU/releases/tag/v0.0.3>。
+
+> 另外：GitHub 每个 Release 本来就自带 "Source code (zip/tar.gz)"，
+> 但文件名是 `ICU-0.0.3.zip`，不够明确；本方案提供的是名字更清楚的自有压缩包。
+
 ### 2.4 许可证统一（P11 的处理结果）
 
 **统一选择**：Apache License 2.0（允许修改、再分发、商用）。

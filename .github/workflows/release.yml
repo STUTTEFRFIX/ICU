@@ -68,6 +68,28 @@ jobs:
             exit 1
           fi
 
+      - name: Pack the source archive
+        run: |
+          # A zip named "-src" cannot be mistaken for the mod and cannot be
+          # dropped into mods/: the extension is not .jar and the name says src.
+          VERSION="${GITHUB_REF_NAME#v}"
+          zip -r "dist/icu-${VERSION}-src.zip" \
+            src \
+            docs \
+            .github \
+            build.gradle \
+            settings.gradle \
+            gradle.properties \
+            build.bat \
+            gradlew \
+            gradlew.bat \
+            gradle \
+            README.md \
+            LICENSE \
+            .gitignore
+          echo "--- source archive ---"
+          ls -l "dist/icu-${VERSION}-src.zip"
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -78,6 +100,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*.jar
+          files: |
+            dist/*.jar
+            dist/*-src.zip
           generate_release_notes: true
           fail_on_unmatched_files: true

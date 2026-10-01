@@ -57,10 +57,10 @@ src/main/java/com/icu/icu/
 
 到 [Releases](https://github.com/STUTTEFRFIX/ICU/releases) 下载 **`icu-Mod-0.0.3.jar`**，丢进实例的 `mods/` 文件夹即可。
 
-> ⚠️ **只下载带 `-Mod` 的那个 jar。**
-> Release 里若出现 `-sources.jar`，那是**源码包**（只有 `.java` 文本、没有编译好的 `.class`），
+> ⚠️ **只下载带 `-Mod` 的 `.jar`。**
+> Release 里另有 **`icu-<版本>-src.zip`**，那是**源码压缩包**（`.zip` 格式，装不进 `mods/`）。
+> 之所以不再发布 `-sources.jar`：它是 jar 格式、且含 `neoforge.mods.toml`，
 > 装进 `mods/` 后模组会显示在列表里但**代码完全不会执行**，等于没装。
-> 正式发布已不再附带源码包。
 
 **方式二：自己编译**
 
