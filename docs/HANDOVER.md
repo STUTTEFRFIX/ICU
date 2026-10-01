@@ -88,7 +88,7 @@ cd /d D:\DS\icu
 build.bat
 ```
 
-**产物**：`build/libs/icu-0.0.2-Mod.jar` → 丢进实例的 `mods/` 文件夹即可使用。
+**产物**：`build/libs/icu-Mod-0.0.3.jar` → 丢进实例的 `mods/` 文件夹即可使用。
 
 > ⚠️ 产物名带 `-Mod` 后缀，是为了和 `-sources.jar`（源码包）明确区分。
 > **源码包不能装进 `mods/`**：它只有 `.java` 文本、没有编译好的 `.class`，

@@ -153,7 +153,7 @@ PlayerRespawnEvent → 层数清零 + 移除效果
 
 | 产物 | 路径 |
 |---|---|
-| 模组 jar | `build/libs/icu-0.0.2-Mod.jar` |
-| 源码 jar | `build/libs/icu-0.0.2-Mod-sources.jar`（**不要**装进 `mods/`） |
+| 模组 jar | `build/libs/icu-Mod-0.0.3.jar` |
+| 源码 jar | `build/libs/icu-Mod-0.0.3-sources.jar`（**不要**装进 `mods/`） |
 
-安装方式：把 `icu-0.0.2-Mod.jar` 放进对应实例的 `mods/` 文件夹。
+安装方式：把 `icu-Mod-0.0.3.jar` 放进对应实例的 `mods/` 文件夹。

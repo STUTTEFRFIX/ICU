@@ -63,8 +63,8 @@ jobs:
           rm -f dist/*-sources.jar
           echo "--- release assets ---"
           ls -l dist
-          if [ ! -f "dist/icu-${GITHUB_REF_NAME#v}-Mod.jar" ]; then
-            echo "ERROR: the mod jar dist/icu-${GITHUB_REF_NAME#v}-Mod.jar was not produced"
+          if [ ! -f "dist/icu-Mod-${GITHUB_REF_NAME#v}.jar" ]; then
+            echo "ERROR: the mod jar dist/icu-Mod-${GITHUB_REF_NAME#v}.jar was not produced"
             exit 1
           fi
 

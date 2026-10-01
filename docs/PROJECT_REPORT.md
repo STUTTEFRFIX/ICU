@@ -143,7 +143,7 @@ ICU/
 | 触发条件 | 推送 `v*` 标签 |
 | 版本来源 | 标签自动推导（`v0.0.1` → mod 版本 `0.0.1`） |
 | 构建环境 | ubuntu-latest + JDK 21 (temurin) |
-| 产出 | 附加到 Release 的模组 jar（`icu-<版本>-Mod.jar`）。源码包**不再发布**，见 P14 |
+| 产出 | 附加到 Release 的模组 jar（`icu-Mod-<版本>.jar`）。源码包**不再发布**，见 P14 |
 | 触发结果 | ✅ **构建成功**（约 2 分钟），run #1 `conclusion=success` |
 
 **发布地址**：<https://github.com/STUTTEFRFIX/ICU/releases/tag/v0.0.1>
@@ -208,9 +208,11 @@ ICU/
 
 **修复（三件事）**：
 
-1. **产物改名**：`build.gradle` 的 `archivesName` 由 `mod_id` 改为
-   `"${mod_id}-${mod_version}-Mod"` → 产物变为 `icu-<版本>-Mod.jar`，
-   一看就知道是模组本身，不会再和源码包混淆。
+1. **产物改名**：`build.gradle` 的 `archivesName` 由 `mod_id` 改为 `"${mod_id}-Mod"`
+   （Gradle 会自动拼成 `<archivesName>-<version>`）→ 产物变为
+   **`icu-Mod-<版本>.jar`**，一看就知道是模组本身，不会再和源码包混淆。
+   > 踩坑记录：最初写成 `"${mod_id}-${mod_version}-Mod"`，导致 Gradle 又追加一次版本号，
+   > 产出 `icu-0.0.3-Mod-0.0.3.jar`（版本重复），CI 校验因此失败。已修正。
 2. **发布流程不再附带源码包**：`.github/workflows/release.yml` 的收集步骤
    显式删除 `dist/*-sources.jar`，并校验模组 jar 确实存在，
    否则让构建**直接失败**（避免又发出一个空壳）。
