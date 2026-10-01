@@ -1,0 +1,5 @@
+{
+  "effect.nofo.bleeding": "大出血",
+  "death.attack.bleed": "%1$s 因大出血而死亡",
+  "death.attack.bleed.player": "%1$s 被 %2$s 砍成重伤，大出血而亡"
+}
