@@ -88,7 +88,12 @@ cd /d D:\DS\icu
 build.bat
 ```
 
-**产物**：`build/libs/icu-0.0.1.jar` → 丢进实例的 `mods/` 文件夹即可使用。
+**产物**：`build/libs/icu-0.0.2-Mod.jar` → 丢进实例的 `mods/` 文件夹即可使用。
+
+> ⚠️ 产物名带 `-Mod` 后缀，是为了和 `-sources.jar`（源码包）明确区分。
+> **源码包不能装进 `mods/`**：它只有 `.java` 文本、没有编译好的 `.class`，
+> NeoForge 仍会把它当成一个模组列出来（因为里面有 `neoforge.mods.toml`），
+> 但代码一行都不会执行。发布流程已不再附带源码包。
 
 **前置条件**：出网；Java 21（`settings.gradle` 的 Foojay 插件会自动下载）。
 
@@ -125,7 +130,7 @@ build.bat
 > 报错为 `os::commit_memory failed / 页面文件太小`。这是**环境限制，不是代码问题**。
 > 因此本项目改用 **GitHub Actions 构建**（见 `.github/workflows/release.yml`）：
 > 推送 `v*` 标签后，云端自动编译并把 jar 挂到 Release。
-> 实测：`v0.0.1` 标签触发的构建成功，产出 `icu-0.0.1.jar`（10,598 字节）。
+> 实测：`v0.0.1` 标签触发的构建成功，产出模组 jar（10,598 字节）。
 
 ---
 

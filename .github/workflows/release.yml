@@ -53,7 +53,20 @@ jobs:
           echo "--- build/libs ---"
           ls -l build/libs
           mkdir -p dist
-          cp build/libs/*.jar dist/
+          # Publish ONLY the loadable mod jar.
+          # The sources jar is deliberately excluded: it is a jar full of .java
+          # files with no compiled classes, so NeoForge still recognises it as a
+          # mod (it carries neoforge.mods.toml) and lists it in the mod list, but
+          # none of the code ever runs. Shipping it as a release asset next to the
+          # real jar caused players to install the wrong file.
+          cp build/libs/icu-*.jar dist/
+          rm -f dist/*-sources.jar
+          echo "--- release assets ---"
+          ls -l dist
+          if [ ! -f "dist/icu-${GITHUB_REF_NAME#v}-Mod.jar" ]; then
+            echo "ERROR: the mod jar dist/icu-${GITHUB_REF_NAME#v}-Mod.jar was not produced"
+            exit 1
+          fi
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

@@ -130,6 +130,7 @@ ICU/
 | P11 | **许可证三处自相矛盾** | `gradle.properties` 写 `All Rights Reserved`，而仓库 `LICENSE` 是 Apache-2.0，README 又完全没提许可证 | ✅ 已统一为 Apache-2.0（见 3.3） |
 | P12 | **本机无法编译**（两次尝试均失败） | NeoForm 反编译 Minecraft 需内存超过本机提交上限（可用提交 4.55 GB），报 `Native memory allocation failed / 页面文件太小` | ✅ 改用 GitHub Actions 云端构建（见 2.5） |
 | P13 | **特性"没有生效"**（玩家反馈） | 触发阈值 = 护甲结算后 >10，而护甲减免后最高只能到 ~2.8，**永远不可能触发**。审核确认代码无 bug，是数值标定错误（我方在需求确认时未做可行性推演） | ✅ 阈值改为 3，并补做护甲梯度标定（见 2.6） |
+| P14 | **玩家装了模组却"完全没反应"**（第二次反馈） | 发布时把 `icu-x.y.z-sources.jar`（源码包）和模组包并列挂在 Release，玩家下载了**源码包**。源码包只有 `.java` 文本、没有编译好的 `.class`，但含 `neoforge.mods.toml`，所以 NeoForge 仍把它列为模组 —— 结果是"列表里看得见、代码一行不跑" | ✅ 见 2.7 |
 
 ### 2.5 首个发布版 0.0.1（P12 的处理结果）
 
@@ -142,7 +143,7 @@ ICU/
 | 触发条件 | 推送 `v*` 标签 |
 | 版本来源 | 标签自动推导（`v0.0.1` → mod 版本 `0.0.1`） |
 | 构建环境 | ubuntu-latest + JDK 21 (temurin) |
-| 产出 | 附加到 Release 的 `icu-0.0.1.jar` 与 `icu-0.0.1-sources.jar` |
+| 产出 | 附加到 Release 的模组 jar（`icu-<版本>-Mod.jar`）。源码包**不再发布**，见 P14 |
 | 触发结果 | ✅ **构建成功**（约 2 分钟），run #1 `conclusion=success` |
 
 **发布地址**：<https://github.com/STUTTEFRFIX/ICU/releases/tag/v0.0.1>
@@ -191,6 +192,34 @@ ICU/
 并把标定依据写进该常量的 Javadoc，防止以后被误改回去。
 共同步 9 处文档/代码表述，并发布 `v0.0.2`。
 
+### 2.7 产物命名与发布规则（P14 的处理结果）
+
+**问题**：玩家反馈装了模组却毫无反应。分析运行日志后定位到三条证据：
+
+| 证据 | 日志内容 |
+|---|---|
+| 1 | `Found mod file "icu-0.0.2-sources.jar"` —— 装的是**源码包** |
+| 2 | `Attempting to inject @EventBusSubscriber classes into the eventbus for icu` 之后**没有任何后续** —— 扫不到 class，一个事件监听都没注册 |
+| 3 | 模组启动时会打印的 `[ICU] loaded` —— **出现 0 次**，主类从未执行 |
+
+**原因**：`-sources.jar` 是源码包（只有 `.java`），但里面带了 `neoforge.mods.toml`，
+所以 NeoForge 仍把它识别为一个有效模组并显示在模组列表里，
+**但没有任何 `.class` 可以执行**。而它和真正的模组包名字只差 `-sources`，极易下错。
+
+**修复（三件事）**：
+
+1. **产物改名**：`build.gradle` 的 `archivesName` 由 `mod_id` 改为
+   `"${mod_id}-${mod_version}-Mod"` → 产物变为 `icu-<版本>-Mod.jar`，
+   一看就知道是模组本身，不会再和源码包混淆。
+2. **发布流程不再附带源码包**：`.github/workflows/release.yml` 的收集步骤
+   显式删除 `dist/*-sources.jar`，并校验模组 jar 确实存在，
+   否则让构建**直接失败**（避免又发出一个空壳）。
+3. **清理历史 Release**：已删除 `v0.0.1` 与 `v0.0.2` 上的两个源码包资产，
+   现在两个 Release 各自只剩模组 jar。
+
+> 源码包仍会作为 **workflow artifact** 保留（供开发者下载），
+> 只是不再出现在玩家的下载列表里。
+
 ### 2.4 许可证统一（P11 的处理结果）
 
 **统一选择**：Apache License 2.0（允许修改、再分发、商用）。
@@ -228,7 +257,7 @@ ICU/
 | # | 事项 | 等待什么 |
 |---|---|---|
 | U1 | ~~重新编译验证~~ | ✅ 已完成（项目所有者实测通过） |
-| U2 | ~~发布 `icu-0.0.1.jar` 到 GitHub Releases~~ | ✅ 已完成（`v0.0.1`，CI 构建成功） |
+| U2 | ~~发布模组 jar 到 GitHub Releases~~ | ✅ 已完成（`v0.0.1`、`v0.0.2`，CI 构建成功） |
 | U3 | ~~本报表是否同步到仓库~~ | ✅ 已同步 |
 | U4 | ~~推广到其它平台~~ | ✅ 项目所有者已完成 |
 | U5 | 是否把本地工程也初始化成 git 仓库 | 用户决定 |

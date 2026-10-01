@@ -55,7 +55,12 @@ src/main/java/com/icu/icu/
 
 **方式一：直接下载（普通玩家用这个）**
 
-到 [Releases](https://github.com/STUTTEFRFIX/ICU/releases) 下载 `icu-0.0.1.jar`，丢进实例的 `mods/` 文件夹即可。
+到 [Releases](https://github.com/STUTTEFRFIX/ICU/releases) 下载 **`icu-0.0.2-Mod.jar`**，丢进实例的 `mods/` 文件夹即可。
+
+> ⚠️ **只下载带 `-Mod` 的那个 jar。**
+> Release 里若出现 `-sources.jar`，那是**源码包**（只有 `.java` 文本、没有编译好的 `.class`），
+> 装进 `mods/` 后模组会显示在列表里但**代码完全不会执行**，等于没装。
+> 正式发布已不再附带源码包。
 
 **方式二：自己编译**
 
@@ -63,7 +68,7 @@ src/main/java/com/icu/icu/
 build.bat
 ```
 
-产物：`build/libs/icu-0.0.1.jar`。
+产物：`build/libs/icu-0.0.2-Mod.jar`。
 
 > 本机有沙箱限制，`build.bat` 已内置所需环境变量（JDK 21 路径等）。
 > 在没有限制的普通机器上，直接 `gradlew.bat build` 即可。
