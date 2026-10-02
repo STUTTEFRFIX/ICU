@@ -7,9 +7,9 @@
 | 平台 | Minecraft **1.21.1** + NeoForge **21.1.252** |
 | 构建 | ModDevGradle 1.0.24 · Gradle 8.14.3 · Java 21 |
 | mod id | `icu` |
-| 当前版本 | **0.1.0** |
+| 当前版本 | **0.2.0** |
 | 许可证 | **Apache-2.0**（允许修改与再分发） |
-| 已实现 | **4 个玩法模块 + 1 个物品** |
+| 已实现 | **4 个玩法模块 + 1 个物品 + JEI 集成** |
 
 ---
 
@@ -24,8 +24,10 @@ ICU 把「受伤」和「救治」做成一套写实的机制。玩法以**独�
 | **疼痛值** | 出血与崴脚共用的疼痛计量；满值会强制倒下 |
 | **摔落崴脚** | 高处摔落有概率扭伤脚踝；护甲附魔可减免 |
 | **绷带** | 3 纸 + 1 线 + 1 羊毛；按住 3 秒止血 |
+| **JEI 集成**（可选） | JEI 存在时：绷带信息页 + ICU「大出血流程」分类页 |
 
 > **心跳音效尚未实现**：设计已定稿，等音频素材。
+> **JEI 是可选的**：不装 JEI 也能正常玩，ICU 不会因此报错。
 
 ---
 
@@ -66,7 +68,7 @@ src/main/java/com/icu/icu/
 
 **方式一：直接下载（普通玩家用这个）**
 
-到 [Releases](https://github.com/STUTTEFRFIX/ICU/releases) 下载 **`icu-Mod-0.1.0.jar`**，丢进实例的 `mods/` 文件夹即可。
+到 [Releases](https://github.com/STUTTEFRFIX/ICU/releases) 下载 **`icu-Mod-0.2.0.jar`**，丢进实例的 `mods/` 文件夹即可。
 
 > ⚠️ **只下载带 `-Mod` 的 `.jar`。**
 > Release 里另有 **`icu-<版本>-src.zip`**，那是**源码压缩包**（`.zip` 格式，装不进 `mods/`）。
@@ -79,7 +81,7 @@ src/main/java/com/icu/icu/
 build.bat
 ```
 
-产物：`build/libs/icu-Mod-0.1.0.jar`。
+产物：`build/libs/icu-Mod-0.2.0.jar`。
 
 > 本机有沙箱限制，`build.bat` 已内置所需环境变量（JDK 21 路径等）。
 > 在没有限制的普通机器上，直接 `gradlew.bat build` 即可。

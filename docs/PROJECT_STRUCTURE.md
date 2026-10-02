@@ -8,7 +8,7 @@
 ## 1. 一句话简介
 
 `ICU` 是一个 **Minecraft 1.21.1 / NeoForge** 模组，主题是「还原真实的身体损伤与医疗体系」。
-当前版本 **0.1.0**，实现了 **4 个玩法模块 + 1 个物品**：大出血、血容量、疼痛值、摔落崴脚、绷带。
+当前版本 **0.2.0**，实现了 **4 个玩法模块 + 1 个物品 + JEI 集成**：大出血、血容量、疼痛值、摔落崴脚、绷带。
 
 ---
 
@@ -46,6 +46,11 @@ icu/
     │   ├── IcuItems.java            # 物品注册
     │   ├── item/
     │   │   └── BandageItem.java     # 绷带：右键按住 3 秒治疗大出血
+    │   ├── compat/jei/              # ★ JEI 集成（可选，不装 JEI 也能跑）
+    │   │   ├── IcuJeiPlugin.java            # 插件入口：信息页 + 注册分类
+    │   │   └── recipe/
+    │   │       ├── IcuInfoRecipe.java       # 一页的数据（输入/输出/文案键）
+    │   │       └── IcuOverviewCategory.java # 「大出血流程」分类页
     │   └── gameplay/                # ★ 所有玩法的家，一个玩法一个子包
     │       ├── bleeding/            # 大出血 + 恢复期
     │       │   ├── BleedingData.java          # 数据：出血层数
@@ -189,10 +194,10 @@ PlayerTickEvent.Post（每 tick）
 
 | 产物 | 路径 |
 |---|---|
-| 模组 jar | `build/libs/icu-Mod-0.1.0.jar` |
-| 源码 jar | `build/libs/icu-Mod-0.1.0-sources.jar`（**不要**装进 `mods/`） |
+| 模组 jar | `build/libs/icu-Mod-0.2.0.jar` |
+| 源码 jar | `build/libs/icu-Mod-0.2.0-sources.jar`（**不要**装进 `mods/`） |
 
-安装方式：把 `icu-Mod-0.1.0.jar` 放进对应实例的 `mods/` 文件夹。
+安装方式：把 `icu-Mod-0.2.0.jar` 放进对应实例的 `mods/` 文件夹。
 
 **发布到 Release 的文件**（由 CI 产出）：
 

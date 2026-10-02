@@ -17,14 +17,14 @@
 |---|---|
 | 项目名 | **ICU** — 在 Minecraft 中还原真实的身体损伤与医疗体系 |
 | 开源仓库 | <https://github.com/STUTTEFRFIX/ICU>（公开） |
-| 最新提交 | `93b5e70` — Fix the enchantment level lookup and complete the fall exemptions |
+| 最新提交 | `470d1ef` — Add JEI integration (optional at runtime) |
 | 本地目录 | `D:\DS\icu` |
 | mod id | `icu` |
 | Java 包 | `com.icu.icu` |
-| 版本 | **0.1.0** |
+| 版本 | **0.2.0** |
 | 平台 | Minecraft **1.21.1** + NeoForge **21.1.252** |
 | 构建 | ModDevGradle 1.0.24 · Gradle 8.14.3 · Java 21 |
-| 已实现 | **4 个玩法模块 + 1 个物品**：大出血 / 血容量 / 疼痛值 / 摔落崴脚 / 绷带 |
+| 已实现 | **4 个玩法模块 + 1 个物品 + JEI 集成** |
 
 > **命名只有一套**：仓库 `ICU` = 目录 `icu` = mod id `icu` = 包 `com.icu.icu`。
 > 功能与变更速览见 [CHANGELOG.md](CHANGELOG.md)。
