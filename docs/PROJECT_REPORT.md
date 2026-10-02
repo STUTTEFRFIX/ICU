@@ -1,5 +1,8 @@
 # ICU 项目报表
 
+> **一页速览见 [CHANGELOG.md](CHANGELOG.md)**（功能清单 + 变更总账）。
+> 本文件是完整的项目管理报表。
+
 > **用途**：项目管理 / 问题分析 / 交接接手 / 可持续开发
 > **生成时间**：2026-10-01
 > **一句话结论**：模组已能编译、能加载、功能已实现；但**改名重排后尚未重新编译验证**，这是当前最大风险点。
@@ -14,27 +17,33 @@
 |---|---|
 | 项目名 | **ICU** — 在 Minecraft 中还原真实的身体损伤与医疗体系 |
 | 开源仓库 | <https://github.com/STUTTEFRFIX/ICU>（公开） |
-| 最新提交 | `ca3a8fe` — Rename project to icu and restructure for maintainability |
+| 最新提交 | `93b5e70` — Fix the enchantment level lookup and complete the fall exemptions |
 | 本地目录 | `D:\DS\icu` |
 | mod id | `icu` |
 | Java 包 | `com.icu.icu` |
-| 版本 | 0.0.1（首个发布版） |
+| 版本 | **0.1.0** |
 | 平台 | Minecraft **1.21.1** + NeoForge **21.1.252** |
 | 构建 | ModDevGradle 1.0.24 · Gradle 8.14.3 · Java 21 |
-| 已实现模块 | **1 个** — `gameplay.bleeding`（大出血） |
+| 已实现 | **4 个玩法模块 + 1 个物品**：大出血 / 血容量 / 疼痛值 / 摔落崴脚 / 绷带 |
 
 > **命名只有一套**：仓库 `ICU` = 目录 `icu` = mod id `icu` = 包 `com.icu.icu`。
+> 功能与变更速览见 [CHANGELOG.md](CHANGELOG.md)。
 
-### 1.2 仓库文件清单（26 个）
+### 1.2 仓库文件清单
 
 ```
 ICU/
 ├── README.md                        入口页：这是什么、怎么构建、从哪看代码
+├── BUILD_FAILURES.md                CI 编译失败时自动追加记录
 ├── LICENSE                          Apache 2.0
 ├── build.gradle / build.bat / gradle.properties / settings.gradle
 ├── gradlew / gradlew.bat / gradle/wrapper/*
 ├── .gitignore
+├── .github/workflows/
+│   ├── build.yml                    推 main 自动编译检查
+│   └── release.yml                  推 v* 标签自动构建并发布
 ├── docs/
+│   ├── CHANGELOG.md                 功能清单 + 变更总账
 │   ├── PROJECT_REPORT.md            ← 本文件
 │   ├── PROJECT_STRUCTURE.md         每个文件干什么
 │   ├── DEVELOPMENT.md               加新功能的规矩 + 1.21.1 API 坑
@@ -42,15 +51,21 @@ ICU/
 └── src/main/
     ├── java/com/icu/icu/
     │   ├── IcuMod.java              入口，只做注册
-    │   ├── IcuAttachments.java      玩家状态存储
-    │   └── gameplay/bleeding/
-    │       ├── BleedingData.java    数据：出血层数
-    │       ├── BleedingDamage.java  伤害：icu:bleed
-    │       └── BleedingFeature.java 规则：触发/扣血/趴下/效果 ★核心
+    │   ├── IcuAttachments.java      全部玩家状态（5 个附件）
+    │   ├── IcuItems.java            物品注册
+    │   ├── item/BandageItem.java    绷带：按住 3 秒止血
+    │   └── gameplay/
+    │       ├── bleeding/            大出血 + 恢复期
+    │       ├── blood/               血容量
+    │       ├── pain/                疼痛值
+    │       └── sprain/              摔落崴脚
     ├── resources/
     │   ├── pack.mcmeta
     │   ├── assets/icu/lang/{zh_cn,en_us}.json
+    │   ├── assets/icu/models/item/bandage.json
+    │   ├── assets/icu/textures/item/bandage.png
     │   ├── data/icu/damage_type/bleed.json
+    │   ├── data/icu/recipe/bandage.json
     │   └── data/minecraft/tags/item/{swords,axes}.json
     └── templates/META-INF/neoforge.mods.toml
 ```

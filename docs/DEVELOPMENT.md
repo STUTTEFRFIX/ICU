@@ -20,25 +20,37 @@
 
 ---
 
-## 2. 一个玩法模块 = 一个包，最多 3 个文件
+## 2. 一个玩法模块 = 一个包
 
 ```
 gameplay/<模块>/
-├── <模块>Data.java      数据：这个玩法要在玩家身上存什么
+├── <模块>Data.java      数据：这个玩法要在玩家身上存什么（可多个）
 ├── <模块>Damage.java    伤害：需要自定义伤害类型时才建
 └── <模块>Feature.java   规则：触发条件、每 tick 行为、结束条件（★核心）
 ```
+
+**现状参考**（0.1.0）：
+
+| 模块 | 文件 |
+|---|---|
+| `bleeding` | `BleedingData` / `BleedingDamage` / `BleedingFeature` / `BleedingRecoveryData` / `BleedingRecoveryFeature` |
+| `blood` | `BloodVolumeData` |
+| `pain` | `PainData` / `PainFeature` |
+| `sprain` | `SprainData` / `SprainFeature` |
+
+> 数据类和数据规则类可以拆开（如 `BleedingRecoveryData` + `BleedingRecoveryFeature`），
+> 当一个玩法的规则多到一类装不下时就拆。
 
 **职责边界（别混）**
 
 | 文件 | 只该做的事 | 不该做的事 |
 |---|---|---|
-| `Data` | 存状态、序列化 | 写游戏逻辑 |
+| `Data` | 存状态、序列化、暴露 getter/改变方法 | 订阅事件、写游戏逻辑 |
 | `Damage` | 造 `DamageSource` | 判断触发条件 |
-| `Feature` | 规则判定与效果施加 | 直接 new 注册对象 |
+| `Feature` | 规则判定与效果施加、订阅事件 | 直接 new 注册对象 |
 
-**注册放哪**：所有 `AttachmentType` 统一注册在 `IcuAttachments`，由 `IcuMod` 调用一次。
-玩法模块**不自己注册**，避免注册顺序问题。
+**注册放哪**：所有 `AttachmentType` 统一注册在 `IcuAttachments`，物品统一注册在 `IcuItems`，
+两者都由 `IcuMod` 调用一次。玩法模块**不自己注册**，避免注册顺序问题。
 
 ---
 
@@ -53,11 +65,11 @@ gameplay/<模块>/
 
 ```java
 // 好：想调数值的人一眼就看到
-public static final float TRIGGER_DAMAGE = 3.0F;
-public static final float DAMAGE_PER_LAYER = 2.0F;
+public static final float TRIGGER_DAMAGE = 7.0F;
+public static final float LOSS_PER_SECOND = 5.0F;
 
 // 差：数字散落在逻辑中间
-if (event.getNewDamage() <= 10.0F) { ... }
+if (event.getNewDamage() <= 7.0F) { ... }
 ```
 
 ---
@@ -95,14 +107,19 @@ if (event.getNewDamage() <= 10.0F) { ... }
 | `AttachmentType.builder` | `Supplier` 与 `Function` 重载会歧义 | 传 lambda，不要传方法引用 |
 | 剑/斧物品标签 | 真名是 `minecraft:swords` / `minecraft:axes` | `ItemTags.SWORDS` / `ItemTags.AXES` |
 | 伤害结算时机 | 想拿**护甲结算后**的伤害 | 用 `LivingDamageEvent.Post` 的 `getNewDamage()` |
-| 无敌帧 | 每 20 tick 扣血会被 10 tick 无敌帧吞掉 | 自定义伤害类型不带 `no_knockback`/无敌标签，或接受部分丢失 |
+| **附魔等级查询** | **`Player.getEnchantmentLevel(Holder)` 不存在** | `EnchantmentHelper.getEnchantmentLevel(Holder, LivingEntity)` |
+| 缓降药水 | 原版仍会触发 `LivingFallEvent`，只是伤害为 0 | 必须自己检查 `hasEffect(MobEffects.SLOW_FALLING)` |
+| 物品注册 | 1.21.1 用 `DeferredRegister.Items` | `DeferredRegister.createItems(MODID)` |
+| 创造栏加物品 | 事件在 mod 总线 | `BuildCreativeModeTabContentsEvent` + `modEventBus.addListener` |
 
 ---
 
 ## 7. 提交前的自检清单
 
-- [ ] `build.bat` 编译通过
+- [ ] 推 main 后 **CI 编译通过**（本机编译不了，见 HANDOVER 第 5 节）
+- [ ] `BUILD_FAILURES.md` 没有新增本次提交的记录
 - [ ] 全文搜索确认没有旧名字残留（如 `nofo`）
 - [ ] 资源命名空间与 mod id 一致
 - [ ] 新增/修改的数值常量都放在类顶部并带注释
-- [ ] 文档同步更新（结构文档里补上新文件）
+- [ ] 新附件已加进 `IcuAttachments` 且**没有** `copyOnDeath()`
+- [ ] 文档同步更新（`CHANGELOG.md` / `PROJECT_STRUCTURE.md` 补上新文件）
