@@ -2,9 +2,9 @@ package com.icu.icu.gameplay.pain;
 
 import com.icu.icu.IcuAttachments;
 import com.icu.icu.IcuMod;
+import com.icu.icu.gameplay.IcuPose;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -31,6 +31,11 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * <p>At {@value PainData#MAX} the player collapses and is shown
  * "我好疼 我好疼" three times, visible only to themselves. Movement returns once
  * pain falls to {@link PainData#RECOVER_AT}.</p>
+ *
+ * <p>The pose and the movement lock are <b>not</b> applied here: they are handled
+ * every tick by {@link IcuPose}, which is the single owner of forced poses. This
+ * class only decides what the pain value becomes, and announces the collapse
+ * once.</p>
  */
 @EventBusSubscriber(modid = IcuMod.MODID)
 public final class PainFeature {
@@ -71,7 +76,10 @@ public final class PainFeature {
         PainData pain = player.getData(IcuAttachments.PAIN);
         boolean bleeding = player.getData(IcuAttachments.BLEEDING).isBleeding();
         boolean sprained = player.getData(IcuAttachments.SPRAIN).isSprained();
-        boolean collapsed = pain.isCollapsed();
+
+        // Read this before changing the value: it tells us whether this update is
+        // the one that pushes the player over the edge.
+        boolean wasCollapsed = pain.isCollapsed();
 
         float delta = 0.0F;
 
@@ -80,8 +88,8 @@ public final class PainFeature {
             delta += BLEEDING_PER_SECOND;
         }
 
-        // A sprained ankle hurts while it is used (never while collapsed).
-        if (sprained && !collapsed) {
+        // A sprained ankle hurts while it is used, never once the player is down.
+        if (sprained && !wasCollapsed) {
             if (player.isSprinting()) {
                 delta += SPRAIN_SPRINT_PER_SECOND;
             } else if (isWalking(player)) {
@@ -90,7 +98,7 @@ public final class PainFeature {
         }
 
         // Lying down eases the pain.
-        if (collapsed) {
+        if (wasCollapsed) {
             delta -= COLLAPSE_RELIEF_PER_SECOND;
         }
 
@@ -100,32 +108,18 @@ public final class PainFeature {
             pain.subtract(-delta);
         }
 
-        boolean collapsedNow = pain.isCollapsed();
-
-        if (collapsedNow) {
-            applyCollapse(player);
-            if (!collapsed) {
-                announceCollapse(player);
-            }
-        } else if (collapsed) {
-            // Pain dropped below the limit: the player can act again.
-            player.setPose(Pose.STANDING);
+        // Announce exactly once, on the update that reaches the limit. The pose
+        // and the movement lock are applied every tick by IcuPose.
+        if (!wasCollapsed && pain.isCollapsed()) {
+            announceCollapse(player);
         }
     }
 
-    /** True when the player is actually moving on the ground at walking pace. */
+    /** True when the player has actually moved this tick. */
     private static boolean isWalking(Player player) {
         double dx = player.getX() - player.xOld;
         double dz = player.getZ() - player.zOld;
         return (dx * dx + dz * dz) > 1.0E-4D;
-    }
-
-    private static void applyCollapse(Player player) {
-        player.setPose(Pose.SWIMMING);
-        double vertical = player.getDeltaMovement().y;
-        player.setDeltaMovement(0.0D, vertical > 0.0D ? 0.0D : vertical, 0.0D);
-        player.hurtMarked = true;
-        player.push(0.0D, 0.0D, 0.0D);
     }
 
     /** Shown only to the player who is in pain. */

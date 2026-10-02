@@ -86,6 +86,11 @@ public final class SprainFeature {
         if (player.hasEffect(MobEffects.SLOW_FALLING)) {
             return;
         }
+        // An elytra does NOT exempt by itself: a dive accumulates fallDistance and
+        // lands like any other fall. Gliding therefore has to be checked here.
+        if (player.isFallFlying()) {
+            return;
+        }
 
         int chance = baseChance(distance);
         chance = applyProtection(player, chance);

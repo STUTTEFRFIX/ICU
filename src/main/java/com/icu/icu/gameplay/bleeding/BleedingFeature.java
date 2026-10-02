@@ -10,7 +10,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -34,10 +33,10 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  *   <li><b>Blood loss</b> - while bleeding, blood volume drops
  *       {@link BloodVolumeData#LOSS_PER_SECOND} points every second. At zero the
  *       player dies immediately, whatever their health was. This is the
- *       <b>only</b> way a haemorrhage kills - there is deliberately no extra
- *       health damage, so blood volume is the single source of truth.</li>
- *   <li><b>Forced prone</b> - swimming pose, no self-propelled movement, no
- *       jumping, no knockback.</li>
+ *       <b>only</b> lethal mechanism: there is deliberately no health drain, so
+ *       the player always gets the full 20 seconds to treat the wound.</li>
+ *   <li><b>Forced prone</b> - handled by
+ *       {@link com.icu.icu.gameplay.IcuPose}, the single owner of forced poses.</li>
  *   <li><b>Status effects</b> - Nausea and Darkness, refreshed continuously.</li>
  *   <li><b>Treatment</b> - a bandage held for 3 seconds stops the bleed and opens
  *       the recovery window. Blood volume is never refilled.</li>
@@ -120,7 +119,7 @@ public final class BleedingFeature {
             return;
         }
 
-        applyProneLock(player);
+        // The pose and movement lock are owned by IcuPose, which runs every tick.
         applyStatusEffects(player);
 
         if (player.tickCount % TICK_INTERVAL != 0) {
@@ -129,7 +128,9 @@ public final class BleedingFeature {
 
         emitBloodParticles(player, player.getData(IcuAttachments.BLEEDING).getLayers());
 
-        // The one and only lethal mechanism.
+        // The one and only lethal mechanism. There is deliberately no extra health
+        // damage: blood volume running out is what kills, so the player always has
+        // the full 20 seconds to find a bandage.
         if (blood.drain(BloodVolumeData.LOSS_PER_SECOND) && player.isAlive()) {
             killFromBloodLoss(player);
         }
@@ -145,20 +146,6 @@ public final class BleedingFeature {
         if (player.isAlive()) {
             player.setHealth(0.0F);
         }
-    }
-
-    /**
-     * Forced prone. The swimming pose makes the player visually crawl, speed is
-     * zeroed so no self-propelled movement is possible, the jump impulse is
-     * cancelled and knockback is suppressed.
-     */
-    private static void applyProneLock(Player player) {
-        player.setPose(Pose.SWIMMING);
-
-        double vertical = player.getDeltaMovement().y;
-        player.setDeltaMovement(0.0D, vertical > 0.0D ? 0.0D : vertical, 0.0D);
-        player.hurtMarked = true;
-        player.push(0.0D, 0.0D, 0.0D);
     }
 
     private static void applyStatusEffects(Player player) {

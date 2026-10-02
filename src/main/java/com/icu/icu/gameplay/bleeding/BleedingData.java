@@ -6,9 +6,12 @@ import com.mojang.serialization.Codec;
  * Per-player state of the bleeding module: how many haemorrhage layers the
  * player currently carries.
  *
- * <p>Layers are intentionally uncapped. One layer drains
- * {@link BleedingFeature#DAMAGE_PER_LAYER} health per second, so the layer count
- * is literally "how fast this player is dying".</p>
+ * <p>Layers are intentionally uncapped. They are recorded for diagnostics and
+ * for the recovery rules; the bleeding module deals no health damage, so the
+ * layer count does not itself decide how fast the player dies. Blood volume
+ * running out is what kills, at a fixed
+ * {@link com.icu.icu.gameplay.blood.BloodVolumeData#LOSS_PER_SECOND} per second
+ * regardless of how many layers are stacked.</p>
  */
 public final class BleedingData {
     /** Serialized as a single integer so the wound survives a world reload. */

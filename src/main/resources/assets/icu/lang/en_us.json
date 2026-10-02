@@ -5,6 +5,7 @@
   "message.icu.pain_max": "It hurts so much",
   "message.icu.sprained": "I twisted my ankle",
   "message.icu.wound_reopened": "The wound tore open again!",
+  "message.icu.bandage_failed": "The bandage is useless - there is no blood left to stop",
 
   "item.icu.bandage": "Bandage",
 

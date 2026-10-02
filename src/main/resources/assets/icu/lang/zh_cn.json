@@ -5,6 +5,7 @@
   "message.icu.pain_max": "我好疼 我好疼",
   "message.icu.sprained": "完了 我崴到脚了",
   "message.icu.wound_reopened": "伤口又裂开了！",
+  "message.icu.bandage_failed": "绷带没用——血已经流干了",
 
   "item.icu.bandage": "绷带",
 
