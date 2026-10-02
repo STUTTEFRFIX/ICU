@@ -91,6 +91,27 @@ var generateModMetadata = tasks.register('generateModMetadata', ProcessResources
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
 
+// ---------------------------------------------------------------------------
+// JEI integration (optional at runtime)
+//
+// JEI is compile-only: the ICU jar records a dependency on the "jei" mod id, so
+// NeoForge loads it normally when JEI is absent and the compat classes are simply
+// never touched. Players who do not use JEI are unaffected.
+// ---------------------------------------------------------------------------
+repositories {
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
+}
+
+dependencies {
+    compileOnly "maven.modrinth:jei:${jei_version}"
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.release = 21

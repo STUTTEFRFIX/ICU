@@ -8,5 +8,11 @@
 
   "item.icu.bandage": "绷带",
 
-  "effect.icu.bleeding": "大出血"
+  "effect.icu.bleeding": "大出血",
+
+  "jei.icu.category.overview": "ICU 大出血流程",
+  "jei.icu.overview.note": "被剑/斧重创后开始失血；按右键把绷带按住 3 秒即可止血",
+  "jei.icu.bandage.info.1": "绷带：按住右键 3 秒，止住大出血",
+  "jei.icu.bandage.info.2": "治疗期间血容量仍会每秒下降 5%%，扛不到 3 秒就会死",
+  "jei.icu.bandage.info.3": "止血后进入 5 分钟恢复期：连续跑超 15 秒或第 4 次跳跃会让伤口复发"
 }

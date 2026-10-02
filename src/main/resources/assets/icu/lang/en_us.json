@@ -8,5 +8,11 @@
 
   "item.icu.bandage": "Bandage",
 
-  "effect.icu.bleeding": "Massive Bleeding"
+  "effect.icu.bleeding": "Massive Bleeding",
+
+  "jei.icu.category.overview": "ICU bleeding cycle",
+  "jei.icu.overview.note": "A sword or axe wound starts the bleeding; hold a bandage for 3 seconds to stop it",
+  "jei.icu.bandage.info.1": "Bandage: hold right click for 3 seconds to stop a haemorrhage",
+  "jei.icu.bandage.info.2": "Blood volume still drops 5%% per second while treating, so waiting too long kills you",
+  "jei.icu.bandage.info.3": "Afterwards a 5 minute recovery starts: 15 seconds of sprinting or a 4th jump tears the wound open again"
 }

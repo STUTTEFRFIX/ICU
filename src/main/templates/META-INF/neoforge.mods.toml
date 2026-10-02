@@ -23,3 +23,12 @@ type = "required"
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+# Optional: ICU works without JEI. When JEI is present its plugin adds an
+# information page for the bandage and an ICU overview category.
+[[dependencies.${mod_id}]]
+modId = "jei"
+type = "optional"
+versionRange = "[19,)"
+ordering = "AFTER"
+side = "BOTH"
