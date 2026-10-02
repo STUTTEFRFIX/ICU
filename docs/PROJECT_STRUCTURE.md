@@ -186,6 +186,7 @@ PlayerTickEvent.Post（每 tick）
 | 每秒失血（现在 5%） | `BloodVolumeData.java` | `LOSS_PER_SECOND` |
 | 自然恢复速度（现在 10 分钟 5%） | `BloodVolumeData.java` | `REGEN_AMOUNT` / `REGEN_INTERVAL_TICKS` |
 | 绷带使用时长（现在 3 秒） | `BandageItem.java` | `USE_TICKS` |
+| 绷带生效门槛（现在 15%） | `BandageItem.java` | `MIN_BLOOD_TO_TREAT` |
 | 疼痛各项数值 | `PainFeature.java` | 顶部 5 个常量 |
 | 崴脚概率档位 | `SprainFeature.java` | `CHANCE_TIER_1..4` |
 | 干草块减免（现在 20） | `SprainFeature.java` | `HAY_CHANCE_REDUCTION` |
