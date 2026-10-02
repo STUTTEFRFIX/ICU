@@ -22,9 +22,10 @@ import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
  * Sprained ankle on a qualifying fall.
  *
  * <p>Everything is derived from vanilla {@code fallDistance}; no height is
- * computed by hand. The event only fires for genuine falls, so slow falling,
- * elytra gliding and chorus-fruit teleports are already excluded by the game and
- * water landings are checked explicitly.</p>
+ * computed by hand. Chorus-fruit teleports are excluded by the game, but slow
+ * falling and elytra gliding still fire the fall event (slow falling merely
+ * cancels the damage, and a diving elytra accumulates fall distance), so both
+ * are exempted explicitly here, as are water landings.</p>
  *
  * <h2>Chance by fall distance</h2>
  * <table>
@@ -153,8 +154,8 @@ public final class SprainFeature {
         Holder<Enchantment> featherFalling = lookup.getOrThrow(Enchantments.FEATHER_FALLING);
         Holder<Enchantment> protection = lookup.getOrThrow(Enchantments.PROTECTION);
 
-        // EnchantmentHelper totals the level across every worn piece; the design
-        // says to count from whichever of the two enchantments is higher.
+        // EnchantmentHelper returns the highest level across equipped pieces;
+        // the design says to count from whichever of the two is higher.
         int level = Math.max(
                 EnchantmentHelper.getEnchantmentLevel(featherFalling, player),
                 EnchantmentHelper.getEnchantmentLevel(protection, player));

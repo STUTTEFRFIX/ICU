@@ -8,7 +8,7 @@
 ## 1. 一句话简介
 
 `ICU` 是一个 **Minecraft 1.21.1 / NeoForge** 模组，主题是「还原真实的身体损伤与医疗体系」。
-当前版本 **0.2.1**，实现了 **4 个玩法模块 + 1 个物品 + JEI 集成**：大出血、血容量、疼痛值、摔落崴脚、绷带。
+当前版本 **0.2.2**，实现了 **4 个玩法模块 + 1 个物品 + JEI 集成**：大出血、血容量、疼痛值、摔落崴脚、绷带。
 
 ---
 
@@ -76,10 +76,7 @@ icu/
     │   │   └── textures/item/bandage.png
     │   └── data/
     │       ├── icu/damage_type/bleed.json  # 伤害类型定义
-    │       ├── icu/recipe/bandage.json     # 绷带配方 3纸+1线+1羊毛
-    │       └── minecraft/tags/item/
-    │           ├── swords.json             # 剑类武器标签
-    │           └── axes.json               # 斧类武器标签
+    │       └── icu/recipe/bandage.json     # 绷带配方 3纸+1线+1羊毛
     │
     └── templates/META-INF/
         └── neoforge.mods.toml         # 模组元数据（构建时用 gradle.properties 填充）
@@ -108,7 +105,7 @@ icu/
 | `IcuAttachments.java` | 5 个附件：`BLEEDING` / `BLOOD_VOLUME` / `BLEEDING_RECOVERY` / `PAIN` / `SPRAIN`；**全部不使用 `copyOnDeath()`**，死亡即清空 |
 | `IcuItems.java` | 注册绷带（堆叠 16）|
 | `BandageItem.java` | `USE_TICKS = 60`（3 秒）；完成时清除出血、开启恢复期、**不动血容量** |
-| `BleedingFeature.java` | `TRIGGER_DAMAGE = 7.0F`；触发判定、每秒失血、强制趴下、状态效果、粒子、归零致死 |
+| `BleedingFeature.java` | `TRIGGER_DAMAGE = 7.0F`；触发判定、每秒失血、强制趴下、状态效果、粒子、归零致死；创造/旁观/无敌玩家清出出血 |
 | `BleedingRecoveryFeature.java` | 监听跳跃与奔跑；`>15 秒跑` 或 `第 4 跳` → 复发 |
 | `BloodVolumeData.java` | `LOSS_PER_SECOND = 5`；`REGEN_AMOUNT = 5` / `REGEN_INTERVAL_TICKS = 12000`（10 分钟）|
 | `PainFeature.java` | 出血 +10、崴脚走 +5/跑 +10/跳 +15、趴下 −5；100% 倒地、80% 恢复 |
@@ -128,7 +125,7 @@ icu/
 | 每 tick 计算一次 | 因为移动输入也是每 tick 生效；每秒算一次会被玩家按键推出去 |
 | 触发条件 | 出血中 **或** 疼痛达到 100% → 强制趴下 |
 | 解除 | 两个条件都不满足 → 恢复 `STANDING`（只撤销我们造成的趴下，真游泳不动）|
-| 锁的内容 | 趴地姿态 + 水平速度清零 + 取消向上速度（禁跳）+ `push(0,0,0)`（锁击退）|
+| 锁的内容 | 趴地姿态 + 水平速度清零（兼锁击退）+ 取消向上速度（禁跳）|
 
 > 其它模块想知道"玩家现在是不是被强制趴下"，应调用 `IcuPose.isForcedProne(player)`。
 
@@ -192,7 +189,7 @@ PlayerTickEvent.Post（每 tick）
 | 干草块减免（现在 20） | `SprainFeature.java` | `HAY_CHANCE_REDUCTION` |
 | 附魔每级减免（现在 8） | `SprainFeature.java` | `CHANCE_PER_ENCHANT_LEVEL` |
 | 恢复期时长 / 复发阈值 | `BleedingRecoveryData.java` | `DURATION_TICKS` / `SPRINT_LIMIT_TICKS` / `JUMP_LIMIT` |
-| 武器白名单 | `resources/data/minecraft/tags/item/*.json` | 物品 ID 列表 |
+| 武器白名单 | `BleedingFeature.isBladedWeaponAttack` | 用原版 `ItemTags.SWORDS` / `ItemTags.AXES`（不再有自定义覆盖文件）|
 | 死亡与提示文案 | `resources/assets/icu/lang/zh_cn.json` | `death.attack.bleed` / `message.icu.*` |
 | mod id / 版本 / 显示名 | `gradle.properties` | 对应字段 |
 
@@ -214,10 +211,10 @@ PlayerTickEvent.Post（每 tick）
 
 | 产物 | 路径 |
 |---|---|
-| 模组 jar | `build/libs/icu-Mod-0.2.1.jar` |
-| 源码 jar | `build/libs/icu-Mod-0.2.1-sources.jar`（**不要**装进 `mods/`） |
+| 模组 jar | `build/libs/icu-Mod-0.2.2.jar` |
+| 源码 jar | `build/libs/icu-Mod-0.2.2-sources.jar`（**不要**装进 `mods/`） |
 
-安装方式：把 `icu-Mod-0.2.1.jar` 放进对应实例的 `mods/` 文件夹。
+安装方式：把 `icu-Mod-0.2.2.jar` 放进对应实例的 `mods/` 文件夹。
 
 **发布到 Release 的文件**（由 CI 产出）：
 

@@ -17,11 +17,11 @@
 |---|---|
 | 项目名 | **ICU** — 在 Minecraft 中还原真实的身体损伤与医疗体系 |
 | 开源仓库 | <https://github.com/STUTTEFRFIX/ICU>（公开） |
-| 最新提交 | `470d1ef` — Add JEI integration (optional at runtime) |
+| 最新提交 | 0.2.2（审查修复 + 文档同步，本提交）|
 | 本地目录 | `D:\DS\icu` |
 | mod id | `icu` |
 | Java 包 | `com.icu.icu` |
-| 版本 | **0.2.1** |
+| 版本 | **0.2.2** |
 | 平台 | Minecraft **1.21.1** + NeoForge **21.1.252** |
 | 构建 | ModDevGradle 1.0.24 · Gradle 8.14.3 · Java 21 |
 | 已实现 | **4 个玩法模块 + 1 个物品 + JEI 集成** |
@@ -65,8 +65,7 @@ ICU/
     │   ├── assets/icu/models/item/bandage.json
     │   ├── assets/icu/textures/item/bandage.png
     │   ├── data/icu/damage_type/bleed.json
-    │   ├── data/icu/recipe/bandage.json
-    │   └── data/minecraft/tags/item/{swords,axes}.json
+    │   └── data/icu/recipe/bandage.json
     └── templates/META-INF/neoforge.mods.toml
 ```
 

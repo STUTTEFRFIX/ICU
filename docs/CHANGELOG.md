@@ -3,7 +3,7 @@
 > 一页回答两个问题：**这个模组实现了什么功能**、**过程中改了什么**。
 > 完整项目管理信息见 [PROJECT_REPORT.md](PROJECT_REPORT.md)。
 
-**当前版本：0.2.1**
+**当前版本：0.2.2**
 
 ---
 
@@ -34,7 +34,7 @@
 | 3 | **失血** | 大出血期间血容量 **每秒 −5%** |
 | 4 | **致死** | **只有血容量归零会致死**。旧的「每秒扣健康」伤害已删除，血容量是唯一真相 |
 | 5 | **强制趴下** | `SWIMMING` 姿态 + 水平速度清零 + 禁跳 |
-| 6 | **锁击退** | `push(0,0,0)` |
+| 6 | **锁击退** | 水平速度清零（`setDeltaMovement` 的水平分量置 0），兼锁击退 |
 | 7 | **附加效果** | 反胃 `CONFUSION` + 黑暗 `DARKNESS`，每 tick 刷新 |
 | 8 | **视觉** | 血粒子，数量随层数增加 |
 | 9 | **死亡消息** | 「XXX 血容量归零，失血过多而亡」 |
@@ -43,6 +43,9 @@
 > ⚠️ **阈值 7 的实测影响**：护甲减免后极难达到。
 > 无甲需原始伤害 7；皮革约 15；铁甲约 18.5；**钻石甲约 28**（游戏内最高约 19.5）。
 > 即**穿铁甲以上几乎不会出血**。这是项目所有者明确选定的数值。
+
+> **创造 / 旁观 / 无敌玩家不参与出血**：`onPlayerTick` 在出血处理前把这些玩家清出（`BLEEDING.clear()`），
+> 致死路径（`setHealth(0)` 回退）对这类玩家不可达。
 
 ### 1.3 血容量
 
@@ -140,6 +143,7 @@
 | `v0.1.0` | 血容量 + 绷带 + 疼痛值 + 摔落崴脚 + 恢复期；阈值 3 → 7 |
 | `v0.2.0` | JEI 集成（绷带信息页 + ICU 流程分类页）|
 | **`v0.2.1`** | **本次：实机实测发现的 5 个缺陷修复（见 2.9）** |
+| **`v0.2.2`** | **本次：审查修复 + 文档同步（见 2.10）** |
 
 ### 2.9 v0.2.1 实机实测修复记录
 
@@ -155,10 +159,38 @@
 
 **另**：出血模块**不再造成任何健康伤害** —— 血容量归零是唯一致死机制，玩家总能拿到完整 20 秒去缠绷带。
 
+### 2.10 v0.2.2 审查修复记录
+
+对 0.2.1 代码做了一次**只读**运行期审查，共发现 7 处「能编译但运行期有问题」的缺陷；
+按队长纠正后的指令修复其中 5 处（其余 2 处：1 处误报、1 处留给队长确认数值）。
+
+| # | 位置 | 处理 | 行为变化 |
+|---|---|---|---|
+| #2 | `BleedingFeature.onPlayerTick` | 出血处理前新增守卫：创造/旁观/无敌玩家 `BLEEDING.clear()` 并 return | **是**：这类玩家不会再因出血致死 |
+| #3 | `SprainFeature.applyProtection` 注释 | 改为「EnchantmentHelper returns the highest level across equipped pieces」 | 否（仅注释） |
+| #4 | `SprainFeature` 类 Javadoc | 明确缓降与鞘翅仍会触发 `LivingFallEvent`，故显式豁免 | 否（仅注释） |
+| #6 | `data/minecraft/tags/item/{swords,axes}.json` | 删除冗余覆盖，改用原版 `ItemTags.SWORDS/AXES` | 否（原覆盖与本意一致） |
+| #7 | `IcuPose.applyProneLock` 注释 | 明确锁击退由水平速度清零实现 | 否（仅注释） |
+
+**未修**：
+
+- #1（`IcuPose` 恢复 `STANDING` 分支）：经 `javap` 核实为误报 —— `isSwimming()` 读 `FLAG_SWIMMING`、`setPose` 写 `DATA_POSE`，两者独立，分支可达，保持原样。
+- #5（`SprainFeature.FULL_IMMUNITY_LEVEL = 5`）：触及所有者明确规格「5 级完全免除」，按队长指令**不改数值**，留给队长单独向所有者确认。
+
+**约束保持**：姿态控制仍只在 `IcuPose`；血容量归零仍为唯一致死机制；未新增健康伤害。
+
 ### 2.2 仓库提交历史（新 → 旧）
 
 | 提交 | 说明 |
 |---|---|
+| `aaa0f1c` | Validate recipe JSON in CI so a broken recipe cannot ship again |
+| `f5d189c` | Document the bandage blood-volume threshold |
+| `88ac6a3` | Release 0.2.1 with the five fixes |
+| `17fa3c0` | Fix five defects found by running the mod |
+| `5d4fdf5` | Document how to install JEI and how to change the JEI code |
+| `655b34e` | Bump to 0.2.0 and document the JEI integration |
+| `470d1ef` | Add JEI integration (optional at runtime) |
+| `60b3418` | Document the 0.1.0 modules and bump the version |
 | `93b5e70` | Fix the enchantment level lookup and complete the fall exemptions |
 | `0fd2f92` | build-failure: record failing build for b0ff36c（CI 自动记录）|
 | `b0ff36c` | Add blood volume, bandage, pain, sprain and recovery modules |
@@ -172,6 +204,9 @@
 | `8bded6d` | Unify the licence to Apache-2.0 and add the project report |
 | `ca3a8fe` | Rename project to icu and restructure for maintainability |
 | `54e9168` | Add ICU mod source code (NeoForge 1.21.1) |
+| `45f61be` | Add files via upload |
+| `c570ed8` | Initialize README with project details |
+| `0638ce9` | Initial commit |
 
 ### 2.3 变更分类总账
 
@@ -255,11 +290,11 @@ src/main/java/com/icu/icu/
 
 | 指标 | 值 |
 |---|---|
-| 最新版本 | **0.2.1** |
+| 最新版本 | **0.2.2** |
 | 已实现模块 | **4 个玩法模块 + 1 个物品** |
 | 命名统一度 | **100%**（零 `nofo` 残留）|
 | 许可证 | Apache-2.0（三处一致）|
-| 编译 | ✅ **CI 编译通过**（run #2）|
+| 编译 | ✅ **CI 编译通过**（推 main 自动检查）|
 | 本地编译 | ⚠️ 本机内存不足，必须用 CI 或换机器 |
 | 未实现 | 心跳音效（等音频素材）|
 

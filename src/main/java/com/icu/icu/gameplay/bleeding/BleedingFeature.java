@@ -111,6 +111,13 @@ public final class BleedingFeature {
             return;
         }
 
+        // Creative, spectator and invulnerable players cannot bleed out: clear
+        // any leftover wound so the lethal path below is never reached for them.
+        if (player.isCreative() || player.isSpectator() || player.isInvulnerable()) {
+            player.getData(IcuAttachments.BLEEDING).clear();
+            return;
+        }
+
         BloodVolumeData blood = player.getData(IcuAttachments.BLOOD_VOLUME);
 
         if (!player.getData(IcuAttachments.BLEEDING).isBleeding()) {

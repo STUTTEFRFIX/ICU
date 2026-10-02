@@ -56,8 +56,8 @@ public final class IcuPose {
 
     /**
      * Forces the prone pose and removes every way of moving: the swimming pose
-     * makes the player visually crawl, horizontal speed is zeroed, the jump
-     * impulse is cancelled and knockback is suppressed.
+     * makes the player visually crawl, horizontal speed is zeroed (which also
+     * suppresses knockback), and the jump impulse is cancelled.
      *
      * <p>Called every tick, because movement input is applied every tick too:
      * doing this once per second let a player holding a movement key push
