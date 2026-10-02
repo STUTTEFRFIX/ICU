@@ -31,6 +31,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Fail fast on data-pack problems a compiler cannot see: recipe JSON the
+      # game's recipe manager would reject (wrong shape, unknown item id,
+      # missing result). This is what let the broken 0.2.0 bandage recipe ship
+      # unnoticed - the file existed and packaged fine, but never loaded.
+      - name: Validate recipe JSON
+        run: |
+          python3 tools/validate_recipes.py \
+            src/main/resources/data/icu/recipe \
+            --ids tools/item_ids.json
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
