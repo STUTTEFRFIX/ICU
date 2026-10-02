@@ -98,7 +98,81 @@ if (event.getNewDamage() <= 7.0F) { ... }
 
 ---
 
-## 6. 已知的版本坑（1.21.1 专有）
+## 6. JEI 集成怎么改（`compat/jei/`）
+
+JEI 是**可选依赖**，改这里之前先记住三条规矩。
+
+### 6.1 三条规矩
+
+| 规矩 | 为什么 |
+|---|---|
+| **JEI 只能用 `compileOnly`** | 打进 jar 会与玩家的 JEI 冲突；`build.gradle` 里已这么配 |
+| **`mods.toml` 里必须是 `optional`** | 声明成 `required` 会导致没装 JEI 的玩家**无法启动** |
+| **类只放在 `compat/jei/` 下** | 不装 JEI 时这些类永远不被加载；混进主包会在类加载阶段炸 |
+
+### 6.2 现有文件
+
+| 文件 | 作用 |
+|---|---|
+| `IcuJeiPlugin.java` | `@JeiPlugin` 入口；`registerRecipes` 加信息页与分类页 |
+| `recipe/IcuOverviewCategory.java` | `RecipeType` + `AbstractRecipeCategory` 子类，画那一页 |
+| `recipe/IcuInfoRecipe.java` | 页面数据（record：输入栈 / 输出栈 / 文案键）|
+
+### 6.3 加一个信息页（最简单）
+
+在 `IcuJeiPlugin.registerRecipes` 里加一段：
+
+```java
+registration.addItemStackInfo(
+        new ItemStack(SomeItem.get()),
+        Component.translatable("jei.icu.xxx.info.1"),
+        Component.translatable("jei.icu.xxx.info.2"));
+```
+
+再在 `assets/icu/lang/zh_cn.json` 与 `en_us.json` 补上那两个键即可。**不需要新类。**
+
+### 6.4 加一个新分类页
+
+1. 仿照 `IcuOverviewCategory` 写一个类，`RecipeType.create(icu, "<名字>", YourRecipe.class)`
+2. 在 `IcuJeiPlugin.registerCategories` 里 `addRecipeCategories(new YourCategory(...))`
+3. 在 `registerRecipes` 里 `addRecipes(YourCategory.RECIPE_TYPE, List.of(...))`
+4. 补语言键
+
+### 6.5 ⚠️ 改 JEI 代码前必须做的事
+
+**JEI 的 API 变动很频繁，不要凭记忆写。** 上次就是因为凭记忆写了 `Player.getEnchantmentLevel` 而编译失败。
+
+正确做法：**先把 JEI 的 jar 下载下来，用 `javap` 查真实签名**：
+
+```bash
+# 从 Modrinth 下载对应版本（见 gradle.properties 的 jei_version）
+javap -classpath jei-1.21.1-neoforge-19.57.0.450.jar mezz.jei.api.registration.IRecipeRegistration
+```
+
+本次已核实的签名（可直接照抄）：
+
+| API | 签名 |
+|---|---|
+| `RecipeType.create` | `static <T> RecipeType<T> create(String namespace, String path, Class<? extends T> cls)` |
+| `AbstractRecipeCategory` 构造 | `(RecipeType<T>, Component title, IDrawable icon, int width, int height)` |
+| `IRecipeLayoutBuilder.addSlot` | `addSlot(RecipeIngredientRole, int x, int y)` → `IRecipeSlotBuilder` |
+| 填槽位 | `IIngredientAcceptor.addItemStack(ItemStack)` |
+| 加文字 | `IRecipeExtrasBuilder.addText(FormattedText, int x, int y)` → `ITextWidget` |
+| 文字换行间距 | `ITextWidget.setLineSpacing(int)` |
+| 用物品当图标 | `IGuiHelper.createDrawableItemStack(ItemStack)` |
+| 信息页 | `IRecipeRegistration.addItemStackInfo(ItemStack, Component...)` |
+
+> ❌ **不存在的 API（别用）**：`ITextWidget.setMaxWidth`（宽度由 `addText` 的位置决定）、
+> `Player.getEnchantmentLevel`、`mezz.jei.api.recipe.IRecipe`、`VanillaRecipeCategoryUid`（19.x 已移除）。
+
+### 6.6 原版合成配方**不需要**写 JEI 代码
+
+JEI 自动读取配方管理器里的所有原版配方。绷带配方（3 纸 + 1 线 + 1 羊毛）以及它的
+「用途 / 原料」两个视图**本来就是自动的**，加 JEI 代码只是**增强**，不是让它能显示。
+
+---
+
+## 7. 已知的版本坑（1.21.1 专有）
 
 | 坑 | 事实 | 正确写法 |
 |---|---|---|
@@ -114,7 +188,7 @@ if (event.getNewDamage() <= 7.0F) { ... }
 
 ---
 
-## 7. 提交前的自检清单
+## 8. 提交前的自检清单
 
 - [ ] 推 main 后 **CI 编译通过**（本机编译不了，见 HANDOVER 第 5 节）
 - [ ] `BUILD_FAILURES.md` 没有新增本次提交的记录
@@ -122,4 +196,6 @@ if (event.getNewDamage() <= 7.0F) { ... }
 - [ ] 资源命名空间与 mod id 一致
 - [ ] 新增/修改的数值常量都放在类顶部并带注释
 - [ ] 新附件已加进 `IcuAttachments` 且**没有** `copyOnDeath()`
+- [ ] 改了 JEI 相关代码 → 已用 `javap` 核对真实签名（见第 6.5 节）
+- [ ] 改了 JEI 相关代码 → 仍然只用 `compileOnly` + `optional`
 - [ ] 文档同步更新（`CHANGELOG.md` / `PROJECT_STRUCTURE.md` 补上新文件）

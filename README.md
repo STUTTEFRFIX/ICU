@@ -13,6 +13,36 @@
 
 ---
 
+## 安装
+
+**必需**
+
+| 组件 | 版本 |
+|---|---|
+| Minecraft | **1.21.1** |
+| NeoForge | **21.1.252** 或更高的 21.1.x |
+| 本模组 | `icu-Mod-0.2.0.jar`（从 [Releases](https://github.com/STUTTEFRFIX/ICU/releases) 下载）|
+
+把 `icu-Mod-0.2.0.jar` 放进实例的 `mods/` 文件夹即可。
+
+> ⚠️ **只下载带 `-Mod` 的 `.jar`。**
+> Release 里另有 `icu-<版本>-src.zip`，那是**源码压缩包**（`.zip` 格式，装不进 `mods/`）。
+> 不要下载任何 `-sources.jar`：它是 jar 格式、且含 `neoforge.mods.toml`，
+> 装进 `mods/` 后模组会显示在列表里但**代码完全不会执行**，等于没装。
+
+**可选：JEI**（想看到绷带信息页与 ICU 分类页才需要）
+
+| 组件 | 版本 |
+|---|---|
+| Just Enough Items (JEI) | **`jei-1.21.1-neoforge-19.57.0.450`** 或更高的 19.x |
+
+从 [modrinth.com/mod/jei](https://modrinth.com/mod/jei) 下载 1.21.1 + **NeoForge** 那个文件，放进 `mods/` 即可。
+
+> **不装 JEI 完全没问题**：ICU 照常运行，只是少两个 JEI 页面。
+> ICU 的 `mods.toml` 把 JEI 声明为 `optional`，所以两者顺序、有无都不影响加载。
+
+---
+
 ## 这是什么
 
 ICU 把「受伤」和「救治」做成一套写实的机制。玩法以**独立模块**形式添加，一个功能一个包，互不干扰。
@@ -68,12 +98,7 @@ src/main/java/com/icu/icu/
 
 **方式一：直接下载（普通玩家用这个）**
 
-到 [Releases](https://github.com/STUTTEFRFIX/ICU/releases) 下载 **`icu-Mod-0.2.0.jar`**，丢进实例的 `mods/` 文件夹即可。
-
-> ⚠️ **只下载带 `-Mod` 的 `.jar`。**
-> Release 里另有 **`icu-<版本>-src.zip`**，那是**源码压缩包**（`.zip` 格式，装不进 `mods/`）。
-> 之所以不再发布 `-sources.jar`：它是 jar 格式、且含 `neoforge.mods.toml`，
-> 装进 `mods/` 后模组会显示在列表里但**代码完全不会执行**，等于没装。
+见上方「[安装](#安装)」章节 —— 从 Releases 下载 `icu-Mod-0.2.0.jar` 丢进 `mods/`。
 
 **方式二：自己编译**
 
