@@ -7,7 +7,7 @@
 | 平台 | Minecraft **1.21.1** + NeoForge **21.1.252** |
 | 构建 | ModDevGradle 1.0.24 · Gradle 8.14.3 · Java 21 |
 | mod id | `icu` |
-| 当前版本 | **0.2.0** |
+| 当前版本 | **0.2.1** |
 | 许可证 | **Apache-2.0**（允许修改与再分发） |
 | 已实现 | **4 个玩法模块 + 1 个物品 + JEI 集成** |
 
@@ -21,9 +21,9 @@
 |---|---|
 | Minecraft | **1.21.1** |
 | NeoForge | **21.1.252** 或更高的 21.1.x |
-| 本模组 | `icu-Mod-0.2.0.jar`（从 [Releases](https://github.com/STUTTEFRFIX/ICU/releases) 下载）|
+| 本模组 | `icu-Mod-0.2.1.jar`（从 [Releases](https://github.com/STUTTEFRFIX/ICU/releases) 下载）|
 
-把 `icu-Mod-0.2.0.jar` 放进实例的 `mods/` 文件夹即可。
+把 `icu-Mod-0.2.1.jar` 放进实例的 `mods/` 文件夹即可。
 
 > ⚠️ **只下载带 `-Mod` 的 `.jar`。**
 > Release 里另有 `icu-<版本>-src.zip`，那是**源码压缩包**（`.zip` 格式，装不进 `mods/`）。
@@ -98,7 +98,7 @@ src/main/java/com/icu/icu/
 
 **方式一：直接下载（普通玩家用这个）**
 
-见上方「[安装](#安装)」章节 —— 从 Releases 下载 `icu-Mod-0.2.0.jar` 丢进 `mods/`。
+见上方「[安装](#安装)」章节 —— 从 Releases 下载 `icu-Mod-0.2.1.jar` 丢进 `mods/`。
 
 **方式二：自己编译**
 
@@ -106,7 +106,7 @@ src/main/java/com/icu/icu/
 build.bat
 ```
 
-产物：`build/libs/icu-Mod-0.2.0.jar`。
+产物：`build/libs/icu-Mod-0.2.1.jar`。
 
 > 本机有沙箱限制，`build.bat` 已内置所需环境变量（JDK 21 路径等）。
 > 在没有限制的普通机器上，直接 `gradlew.bat build` 即可。

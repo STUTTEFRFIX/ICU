@@ -8,7 +8,7 @@
 ## 1. 一句话简介
 
 `ICU` 是一个 **Minecraft 1.21.1 / NeoForge** 模组，主题是「还原真实的身体损伤与医疗体系」。
-当前版本 **0.2.0**，实现了 **4 个玩法模块 + 1 个物品 + JEI 集成**：大出血、血容量、疼痛值、摔落崴脚、绷带。
+当前版本 **0.2.1**，实现了 **4 个玩法模块 + 1 个物品 + JEI 集成**：大出血、血容量、疼痛值、摔落崴脚、绷带。
 
 ---
 
@@ -52,10 +52,11 @@ icu/
     │   │       ├── IcuInfoRecipe.java       # 一页的数据（输入/输出/文案键）
     │   │       └── IcuOverviewCategory.java # 「大出血流程」分类页
     │   └── gameplay/                # ★ 所有玩法的家，一个玩法一个子包
+    │       ├── IcuPose.java         # ★ 唯一姿态控制点：谁趴下、谁锁移动（见下）
     │       ├── bleeding/            # 大出血 + 恢复期
     │       │   ├── BleedingData.java          # 数据：出血层数
-    │       │   ├── BleedingDamage.java        # 伤害类型 icu:bleed（致死与粒子）
-    │       │   ├── BleedingFeature.java       # ★ 规则：触发、失血、趴下、效果
+    │       │   ├── BleedingDamage.java        # 伤害类型 icu:bleed（致死）
+    │       │   ├── BleedingFeature.java       # ★ 规则：触发、失血、效果
     │       │   ├── BleedingRecoveryData.java  # 数据：恢复期计时/跳跃/奔跑
     │       │   └── BleedingRecoveryFeature.java # 规则：扯伤口复发
     │       ├── blood/
@@ -111,7 +112,25 @@ icu/
 | `BleedingRecoveryFeature.java` | 监听跳跃与奔跑；`>15 秒跑` 或 `第 4 跳` → 复发 |
 | `BloodVolumeData.java` | `LOSS_PER_SECOND = 5`；`REGEN_AMOUNT = 5` / `REGEN_INTERVAL_TICKS = 12000`（10 分钟）|
 | `PainFeature.java` | 出血 +10、崴脚走 +5/跑 +10/跳 +15、趴下 −5；100% 倒地、80% 恢复 |
-| `SprainFeature.java` | 5 档概率、干草块 −20、附魔每级 −8 且 5 级全免、入水/缓降/抗火豁免 |
+| `SprainFeature.java` | 5 档概率、干草块 −20、附魔每级 −8 且 5 级全免、入水/缓降/抗火/鞘翅豁免 |
+
+### ★ `IcuPose.java` —— 唯一姿态控制点（重要）
+
+**背景（v0.2.1 修的一个真 bug）**：原本出血模块和疼痛模块**各自调用 `setPose`**，
+出血每 tick 设 `SWIMMING`，疼痛每秒设 `SWIMMING`/`STANDING` —— 两者互相覆盖，
+第三人称看起来就是**站立/趴地反复闪烁**。
+
+**规矩**：
+
+| 规则 | 说明 |
+|---|---|
+| **只有 `IcuPose` 能调 `setPose`** | 其它模块一律**禁止**碰姿态，否则又会互相打架 |
+| 每 tick 计算一次 | 因为移动输入也是每 tick 生效；每秒算一次会被玩家按键推出去 |
+| 触发条件 | 出血中 **或** 疼痛达到 100% → 强制趴下 |
+| 解除 | 两个条件都不满足 → 恢复 `STANDING`（只撤销我们造成的趴下，真游泳不动）|
+| 锁的内容 | 趴地姿态 + 水平速度清零 + 取消向上速度（禁跳）+ `push(0,0,0)`（锁击退）|
+
+> 其它模块想知道"玩家现在是不是被强制趴下"，应调用 `IcuPose.isForcedProne(player)`。
 
 ### 各 Feature 内部结构
 
@@ -194,10 +213,10 @@ PlayerTickEvent.Post（每 tick）
 
 | 产物 | 路径 |
 |---|---|
-| 模组 jar | `build/libs/icu-Mod-0.2.0.jar` |
-| 源码 jar | `build/libs/icu-Mod-0.2.0-sources.jar`（**不要**装进 `mods/`） |
+| 模组 jar | `build/libs/icu-Mod-0.2.1.jar` |
+| 源码 jar | `build/libs/icu-Mod-0.2.1-sources.jar`（**不要**装进 `mods/`） |
 
-安装方式：把 `icu-Mod-0.2.0.jar` 放进对应实例的 `mods/` 文件夹。
+安装方式：把 `icu-Mod-0.2.1.jar` 放进对应实例的 `mods/` 文件夹。
 
 **发布到 Release 的文件**（由 CI 产出）：
 

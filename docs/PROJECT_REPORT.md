@@ -21,7 +21,7 @@
 | 本地目录 | `D:\DS\icu` |
 | mod id | `icu` |
 | Java 包 | `com.icu.icu` |
-| 版本 | **0.2.0** |
+| 版本 | **0.2.1** |
 | 平台 | Minecraft **1.21.1** + NeoForge **21.1.252** |
 | 构建 | ModDevGradle 1.0.24 · Gradle 8.14.3 · Java 21 |
 | 已实现 | **4 个玩法模块 + 1 个物品 + JEI 集成** |
