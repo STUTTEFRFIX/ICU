@@ -61,7 +61,7 @@ public final class SprainFeature {
     public static final int CHANCE_PER_ENCHANT_LEVEL = 8;
 
     /** At this level, protection or feather falling removes the risk entirely. */
-    public static final int FULL_IMMUNITY_LEVEL = 5;
+    public static final int FULL_IMMUNITY_LEVEL = 4;
 
     @SubscribeEvent
     public static void onLivingFall(LivingFallEvent event) {

@@ -109,7 +109,7 @@ icu/
 | `BleedingRecoveryFeature.java` | 监听跳跃与奔跑；`>15 秒跑` 或 `第 4 跳` → 复发 |
 | `BloodVolumeData.java` | `LOSS_PER_SECOND = 5`；`REGEN_AMOUNT = 5` / `REGEN_INTERVAL_TICKS = 12000`（10 分钟）|
 | `PainFeature.java` | 出血 +10、崴脚走 +5/跑 +10/跳 +15、趴下 −5；100% 倒地、80% 恢复 |
-| `SprainFeature.java` | 5 档概率、干草块 −20、附魔每级 −8 且 5 级全免、入水/缓降/抗火/鞘翅豁免 |
+| `SprainFeature.java` | 5 档概率、干草块 −20、附魔每级 −8 且 4 级全免、入水/缓降/抗火/鞘翅豁免 |
 
 ### ★ `IcuPose.java` —— 唯一姿态控制点（重要）
 
@@ -188,6 +188,7 @@ PlayerTickEvent.Post（每 tick）
 | 崴脚概率档位 | `SprainFeature.java` | `CHANCE_TIER_1..4` |
 | 干草块减免（现在 20） | `SprainFeature.java` | `HAY_CHANCE_REDUCTION` |
 | 附魔每级减免（现在 8） | `SprainFeature.java` | `CHANCE_PER_ENCHANT_LEVEL` |
+| 完全免除等级（现在 4） | `SprainFeature.java` | `FULL_IMMUNITY_LEVEL` |
 | 恢复期时长 / 复发阈值 | `BleedingRecoveryData.java` | `DURATION_TICKS` / `SPRINT_LIMIT_TICKS` / `JUMP_LIMIT` |
 | 武器白名单 | `BleedingFeature.isBladedWeaponAttack` | 用原版 `ItemTags.SWORDS` / `ItemTags.AXES`（不再有自定义覆盖文件）|
 | 死亡与提示文案 | `resources/assets/icu/lang/zh_cn.json` | `death.attack.bleed` / `message.icu.*` |
