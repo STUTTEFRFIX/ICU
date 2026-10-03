@@ -1,3 +1,5 @@
+> 🌐 **中文** · [English](PROJECT_REPORT.en.md)
+
 # ICU 项目报表
 
 > **一页速览见 [CHANGELOG.md](CHANGELOG.md)**（功能清单 + 变更总账）。

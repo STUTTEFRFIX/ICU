@@ -1,3 +1,5 @@
+> 🌐 **中文** · [English](DEVELOPMENT.en.md)
+
 # 开发约定（DEVELOPMENT）
 
 > 加功能、改代码**之前**先看这份。照着做，项目就不会长歪。

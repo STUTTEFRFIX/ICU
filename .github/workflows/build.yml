@@ -41,6 +41,14 @@ jobs:
             src/main/resources/data/icu/recipe \
             --ids tools/item_ids.json
 
+      # Fail fast on documentation drift a compiler cannot see: the Chinese and
+      # English docs must keep the same heading count, code-block count, table
+      # row count and version numbers. Run this before the JDK/Gradle setup so
+      # a cheap, deterministic check stops a drifted PR without waiting for a
+      # compile (the NeoForm decompile is the slowest step in this workflow).
+      - name: Validate documentation parity
+        run: python3 tools/check_docs_parity.py
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:

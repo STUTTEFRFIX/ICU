@@ -1,3 +1,5 @@
+> 🌐 **中文** · [English](README.en.md)
+
 # ICU
 
 **在 Minecraft 中还原真实的身体损伤与医疗体系。**
